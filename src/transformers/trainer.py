@@ -276,6 +276,8 @@ class Trainer:
         data_collator: Optional[DataCollator] = None,
         train_dataset: Optional[Dataset] = None,
         eval_dataset: Optional[Dataset] = None,
+        lang_keys: Optional[dict] = None,
+        reg_keys: Optional[dict] = None,
         tokenizer: Optional[PreTrainedTokenizerBase] = None,
         model_init: Callable[[], PreTrainedModel] = None,
         compute_metrics: Optional[Callable[[EvalPrediction], Dict]] = None,
@@ -292,6 +294,9 @@ class Trainer:
         self.hp_name = None
         self.deepspeed = None
         self.is_in_train = False
+        lang_keys={v:k for k,v in lang_keys.items()}
+        self.lang_keys = lang_keys
+        self.reg_keys = reg_keys
 
         # memory metrics - must set up as early as possible
         self._memory_tracker = TrainerMemoryTracker(self.args.skip_memory_metrics)
@@ -535,6 +540,10 @@ class Trainer:
             self._signature_columns += ["label", "label_ids"]
         columns = [k for k in self._signature_columns if k in dataset.column_names]
         ignored_columns = list(set(dataset.column_names) - set(self._signature_columns))
+        if 'lang' in ignored_columns:
+            ignored_columns.remove('lang')
+        if 'reg' in ignored_columns:
+            ignored_columns.remove('reg')
         if len(ignored_columns) > 0:
             dset_description = "" if description is None else f"in the {description} set "
             logger.info(
@@ -550,8 +559,8 @@ class Trainer:
         else:
             return dataset.remove_columns(ignored_columns)
 
-    def _get_train_sampler(self) -> Optional[torch.utils.data.Sampler]:
-        if not isinstance(self.train_dataset, collections.abc.Sized):
+    def _get_train_sampler(self, train_dataset: "datasets.Dataset") -> Optional[torch.utils.data.Sampler]:
+        if not isinstance(train_dataset, collections.abc.Sized):
             return None
 
         generator = None
@@ -561,10 +570,10 @@ class Trainer:
 
         # Build the sampler.
         if self.args.group_by_length:
-            if is_datasets_available() and isinstance(self.train_dataset, datasets.Dataset):
+            if is_datasets_available() and isinstance(train_dataset, datasets.Dataset):
                 lengths = (
-                    self.train_dataset[self.args.length_column_name]
-                    if self.args.length_column_name in self.train_dataset.column_names
+                    train_dataset[self.args.length_column_name]
+                    if self.args.length_column_name in train_dataset.column_names
                     else None
                 )
             else:
@@ -573,7 +582,7 @@ class Trainer:
             if self.args.world_size <= 1:
                 return LengthGroupedSampler(
                     self.args.train_batch_size,
-                    dataset=self.train_dataset,
+                    dataset=train_dataset,
                     lengths=lengths,
                     model_input_name=model_input_name,
                     generator=generator,
@@ -581,7 +590,7 @@ class Trainer:
             else:
                 return DistributedLengthGroupedSampler(
                     self.args.train_batch_size,
-                    dataset=self.train_dataset,
+                    dataset=train_dataset,
                     num_replicas=self.args.world_size,
                     rank=self.args.process_index,
                     lengths=lengths,
@@ -592,15 +601,15 @@ class Trainer:
         else:
             if self.args.world_size <= 1:
                 if _is_torch_generator_available:
-                    return RandomSampler(self.train_dataset, generator=generator)
-                return RandomSampler(self.train_dataset)
+                    return RandomSampler(train_dataset, generator=generator)
+                return RandomSampler(train_dataset)
             elif (
                 self.args.parallel_mode in [ParallelMode.TPU, ParallelMode.SAGEMAKER_MODEL_PARALLEL]
                 and not self.args.dataloader_drop_last
             ):
                 # Use a loop for TPUs when drop_last is False to have all batches have the same size.
                 return DistributedSamplerWithLoop(
-                    self.train_dataset,
+                    train_dataset,
                     batch_size=self.args.per_device_train_batch_size,
                     num_replicas=self.args.world_size,
                     rank=self.args.process_index,
@@ -608,7 +617,7 @@ class Trainer:
                 )
             else:
                 return DistributedSampler(
-                    self.train_dataset,
+                    train_dataset,
                     num_replicas=self.args.world_size,
                     rank=self.args.process_index,
                     seed=self.args.seed,
@@ -626,39 +635,49 @@ class Trainer:
         if self.train_dataset is None:
             raise ValueError("Trainer: training requires a train_dataset.")
 
-        train_dataset = self.train_dataset
-        if is_datasets_available() and isinstance(train_dataset, datasets.Dataset):
-            train_dataset = self._remove_unused_columns(train_dataset, description="training")
+        train_datasetx = self.train_dataset
 
-        if isinstance(train_dataset, torch.utils.data.IterableDataset):
-            if self.args.world_size > 1:
-                train_dataset = IterableDatasetShard(
+        x=is_datasets_available()
+        if is_datasets_available() and isinstance(train_datasetx, datasets.Dataset):
+            train_datasetx = self._remove_unused_columns(train_datasetx, description="training")
+
+        train_datasets=[]
+        for l in set(train_datasetx['lang']):
+            train_datasets.append(train_datasetx.filter(lambda example: example['lang']==l))
+
+        train_dataloaders=[]
+        for train_dataset in train_datasets:
+            if isinstance(train_dataset, torch.utils.data.IterableDataset):
+                if self.args.world_size > 1:
+                    train_dataset = IterableDatasetShard(
+                        train_dataset,
+                        batch_size=self.args.train_batch_size,
+                        drop_last=self.args.dataloader_drop_last,
+                        num_processes=self.args.world_size,
+                        process_index=self.args.process_index,
+                    )
+
+                train_dataloaders.append(DataLoader(
                     train_dataset,
                     batch_size=self.args.train_batch_size,
-                    drop_last=self.args.dataloader_drop_last,
-                    num_processes=self.args.world_size,
-                    process_index=self.args.process_index,
-                )
+                    collate_fn=self.data_collator,
+                    num_workers=self.args.dataloader_num_workers,
+                    pin_memory=self.args.dataloader_pin_memory,
+                ))
 
-            return DataLoader(
+            train_sampler = self._get_train_sampler(train_dataset)
+
+            train_dataloaders.append(DataLoader(
                 train_dataset,
                 batch_size=self.args.train_batch_size,
+                sampler=train_sampler,
                 collate_fn=self.data_collator,
+                drop_last=self.args.dataloader_drop_last,
                 num_workers=self.args.dataloader_num_workers,
                 pin_memory=self.args.dataloader_pin_memory,
-            )
+            ))
 
-        train_sampler = self._get_train_sampler()
-
-        return DataLoader(
-            train_dataset,
-            batch_size=self.args.train_batch_size,
-            sampler=train_sampler,
-            collate_fn=self.data_collator,
-            drop_last=self.args.dataloader_drop_last,
-            num_workers=self.args.dataloader_num_workers,
-            pin_memory=self.args.dataloader_pin_memory,
-        )
+        return train_dataloaders
 
     def _get_eval_sampler(self, eval_dataset: Dataset) -> Optional[torch.utils.data.Sampler]:
         # Deprecated code
@@ -858,6 +877,8 @@ class Trainer:
 
         Will raise an exception if the underlying dataset does not implement method :obj:`__len__`
         """
+        if type(dataloader)==list:
+            return sum([len(x.dataset) for x in dataloader])
         return len(dataloader.dataset)
 
     def _hp_search_setup(self, trial: Union["optuna.Trial", Dict[str, Any]]):
@@ -1087,7 +1108,8 @@ class Trainer:
         train_dataset_is_sized = isinstance(self.train_dataset, collections.abc.Sized)
 
         # Data loader and number of training steps
-        train_dataloader = self.get_train_dataloader()
+        train_dataloaders = self.get_train_dataloader()
+        train_dataloader = train_dataloaders[0]
 
         # Setting up training control variables:
         # number of training epochs: num_train_epochs
@@ -1095,7 +1117,7 @@ class Trainer:
         # total number of training steps to execute: max_steps
         total_train_batch_size = args.train_batch_size * args.gradient_accumulation_steps * args.world_size
         if train_dataset_is_sized:
-            num_update_steps_per_epoch = len(train_dataloader) // args.gradient_accumulation_steps
+            num_update_steps_per_epoch = sum([len(x) for x in train_dataloaders]) // args.gradient_accumulation_steps
             num_update_steps_per_epoch = max(num_update_steps_per_epoch, 1)
             if args.max_steps > 0:
                 max_steps = args.max_steps
@@ -1165,7 +1187,7 @@ class Trainer:
 
         # Train!
         num_examples = (
-            self.num_examples(train_dataloader) if train_dataset_is_sized else total_train_batch_size * args.max_steps
+            self.num_examples(train_dataloaders) if train_dataset_is_sized else total_train_batch_size * args.max_steps
         )
 
         logger.info("***** Running training *****")
@@ -1251,6 +1273,7 @@ class Trainer:
                 parallel_loader = pl.ParallelLoader(train_dataloader, [args.device]).per_device_loader(args.device)
                 epoch_iterator = parallel_loader
             else:
+                iterators = list(map(iter, train_dataloaders)) 
                 epoch_iterator = train_dataloader
 
             # Reset the past mems state at the beginning of each epoch if necessary.
@@ -1261,106 +1284,119 @@ class Trainer:
                 len(epoch_iterator) if train_dataset_is_sized else args.max_steps * args.gradient_accumulation_steps
             )
             self.control = self.callback_handler.on_epoch_begin(args, self.state, self.control)
+            step=0
+            while iterators:
+                epoch_iterator = np.random.choice(iterators)
+                try:
+                    inputs = next(epoch_iterator)   
+                    # print(inputs['reg'],step)
+                    step+=1
+                    # do_more_stuff()
+                    # Skip past any already trained steps if resuming training
+                    if steps_trained_in_current_epoch > 0:
+                        steps_trained_in_current_epoch -= 1
+                        if steps_trained_progress_bar is not None:
+                            steps_trained_progress_bar.update(1)
+                        if steps_trained_in_current_epoch == 0:
+                            self._load_rng_state(resume_from_checkpoint)
+                        continue
+                    elif steps_trained_progress_bar is not None:
+                        steps_trained_progress_bar.close()
+                        steps_trained_progress_bar = None
 
-            for step, inputs in enumerate(epoch_iterator):
+                    if step % args.gradient_accumulation_steps == 0:
+                        self.control = self.callback_handler.on_step_begin(args, self.state, self.control)
 
-                # Skip past any already trained steps if resuming training
-                if steps_trained_in_current_epoch > 0:
-                    steps_trained_in_current_epoch -= 1
-                    if steps_trained_progress_bar is not None:
-                        steps_trained_progress_bar.update(1)
-                    if steps_trained_in_current_epoch == 0:
-                        self._load_rng_state(resume_from_checkpoint)
-                    continue
-                elif steps_trained_progress_bar is not None:
-                    steps_trained_progress_bar.close()
-                    steps_trained_progress_bar = None
-
-                if step % args.gradient_accumulation_steps == 0:
-                    self.control = self.callback_handler.on_step_begin(args, self.state, self.control)
-
-                if (
-                    ((step + 1) % args.gradient_accumulation_steps != 0)
-                    and args.local_rank != -1
-                    and args._no_sync_in_gradient_accumulation
-                ):
-                    # Avoid unnecessary DDP synchronization since there will be no backward pass on this example.
-                    with model.no_sync():
-                        tr_loss_step = self.training_step(model, inputs)
-                else:
-                    tr_loss_step = self.training_step(model, inputs)
-
-                if (
-                    args.logging_nan_inf_filter
-                    and not is_torch_tpu_available()
-                    and (torch.isnan(tr_loss_step) or torch.isinf(tr_loss_step))
-                ):
-                    # if loss is nan or inf simply add the average of previous logged losses
-                    tr_loss += tr_loss / (1 + self.state.global_step - self._globalstep_last_logged)
-                else:
-                    tr_loss += tr_loss_step
-
-                self.current_flos += float(self.floating_point_ops(inputs))
-
-                # Optimizer step for deepspeed must be called on every step regardless of the value of gradient_accumulation_steps
-                if self.deepspeed:
-                    self.deepspeed.step()
-
-                if (step + 1) % args.gradient_accumulation_steps == 0 or (
-                    # last step in epoch but step is always smaller than gradient_accumulation_steps
-                    steps_in_epoch <= args.gradient_accumulation_steps
-                    and (step + 1) == steps_in_epoch
-                ):
-                    # Gradient clipping
-                    if args.max_grad_norm is not None and args.max_grad_norm > 0 and not self.deepspeed:
-                        # deepspeed does its own clipping
-
-                        if self.use_amp:
-                            # AMP: gradients need unscaling
-                            self.scaler.unscale_(self.optimizer)
-
-                        if hasattr(self.optimizer, "clip_grad_norm"):
-                            # Some optimizers (like the sharded optimizer) have a specific way to do gradient clipping
-                            self.optimizer.clip_grad_norm(args.max_grad_norm)
-                        elif hasattr(model, "clip_grad_norm_"):
-                            # Some models (like FullyShardedDDP) have a specific way to do gradient clipping
-                            model.clip_grad_norm_(args.max_grad_norm)
-                        else:
-                            # Revert to normal clipping otherwise, handling Apex or full precision
-                            nn.utils.clip_grad_norm_(
-                                amp.master_params(self.optimizer) if self.use_apex else model.parameters(),
-                                args.max_grad_norm,
-                            )
-
-                    # Optimizer step
-                    optimizer_was_run = True
-                    if self.deepspeed:
-                        pass  # called outside the loop
-                    elif is_torch_tpu_available():
-                        xm.optimizer_step(self.optimizer)
-                    elif self.use_amp:
-                        scale_before = self.scaler.get_scale()
-                        self.scaler.step(self.optimizer)
-                        self.scaler.update()
-                        scale_after = self.scaler.get_scale()
-                        optimizer_was_run = scale_before <= scale_after
+                    if (
+                        ((step + 1) % args.gradient_accumulation_steps != 0)
+                        and args.local_rank != -1
+                        and args._no_sync_in_gradient_accumulation
+                    ):
+                        # Avoid unnecessary DDP synchronization since there will be no backward pass on this example.
+                        with model.no_sync():
+                            tr_loss_step = self.training_step(model, inputs)
                     else:
-                        self.optimizer.step()
+                        tr_loss_step = self.training_step(model, inputs)
 
-                    if optimizer_was_run and not self.deepspeed:
-                        self.lr_scheduler.step()
+                    if (
+                        args.logging_nan_inf_filter
+                        and not is_torch_tpu_available()
+                        and (torch.isnan(tr_loss_step) or torch.isinf(tr_loss_step))
+                    ):
+                        # if loss is nan or inf simply add the average of previous logged losses
+                        tr_loss += tr_loss / (1 + self.state.global_step - self._globalstep_last_logged)
+                    else:
+                        tr_loss += tr_loss_step
 
-                    model.zero_grad()
-                    self.state.global_step += 1
-                    self.state.epoch = epoch + (step + 1) / steps_in_epoch
-                    self.control = self.callback_handler.on_step_end(args, self.state, self.control)
+                    self.current_flos += float(self.floating_point_ops(inputs))
 
-                    self._maybe_log_save_evaluate(tr_loss, model, trial, epoch, ignore_keys_for_eval)
-                else:
-                    self.control = self.callback_handler.on_substep_end(args, self.state, self.control)
+                    # Optimizer step for deepspeed must be called on every step regardless of the value of gradient_accumulation_steps
+                    if self.deepspeed:
+                        self.deepspeed.step()
 
-                if self.control.should_epoch_stop or self.control.should_training_stop:
-                    break
+                    if (step + 1) % args.gradient_accumulation_steps == 0 or (
+                        # last step in epoch but step is always smaller than gradient_accumulation_steps
+                        steps_in_epoch <= args.gradient_accumulation_steps
+                        and (step + 1) == steps_in_epoch
+                    ):
+                        # Gradient clipping
+                        if args.max_grad_norm is not None and args.max_grad_norm > 0 and not self.deepspeed:
+                            # deepspeed does its own clipping
+
+                            if self.use_amp:
+                                # AMP: gradients need unscaling
+                                self.scaler.unscale_(self.optimizer)
+
+                            if hasattr(self.optimizer, "clip_grad_norm"):
+                                # Some optimizers (like the sharded optimizer) have a specific way to do gradient clipping
+                                self.optimizer.clip_grad_norm(args.max_grad_norm)
+                            elif hasattr(model, "clip_grad_norm_"):
+                                # Some models (like FullyShardedDDP) have a specific way to do gradient clipping
+                                model.clip_grad_norm_(args.max_grad_norm)
+                            else:
+                                # Revert to normal clipping otherwise, handling Apex or full precision
+                                nn.utils.clip_grad_norm_(
+                                    amp.master_params(self.optimizer) if self.use_apex else model.parameters(),
+                                    args.max_grad_norm,
+                                )
+
+                        # Optimizer step
+                        optimizer_was_run = True
+                        if self.deepspeed:
+                            pass  # called outside the loop
+                        elif is_torch_tpu_available():
+                            xm.optimizer_step(self.optimizer)
+                        elif self.use_amp:
+                            scale_before = self.scaler.get_scale()
+                            self.scaler.step(self.optimizer)
+                            self.scaler.update()
+                            scale_after = self.scaler.get_scale()
+                            optimizer_was_run = scale_before <= scale_after
+                        else:
+                            self.optimizer.step()
+
+                        if optimizer_was_run and not self.deepspeed:
+                            self.lr_scheduler.step()
+
+                        model.zero_grad()
+                        self.state.global_step += 1
+                        self.state.epoch = epoch + (step + 1) / steps_in_epoch
+                        self.control = self.callback_handler.on_step_end(args, self.state, self.control)
+
+                        self._maybe_log_save_evaluate(tr_loss, model, trial, epoch, ignore_keys_for_eval)
+                    else:
+                        self.control = self.callback_handler.on_substep_end(args, self.state, self.control)
+
+                    if self.control.should_epoch_stop or self.control.should_training_stop:
+                        break
+
+                except StopIteration:
+                    iterators.remove(epoch_iterator)
+            # for step, inputs in enumerate(epoch_iterator):
+            #     x=inputs
+            #     b='a'
+        #    for step, inputs in enumerate(epoch_iterator): 
+
 
             self.control = self.callback_handler.on_epoch_end(args, self.state, self.control)
             self._maybe_log_save_evaluate(tr_loss, model, trial, epoch, ignore_keys_for_eval)
@@ -1809,6 +1845,7 @@ class Trainer:
         Return:
             :obj:`torch.Tensor`: The tensor with training loss on this batch.
         """
+
         model.train()
         inputs = self._prepare_inputs(inputs)
 
@@ -1853,7 +1890,22 @@ class Trainer:
             labels = inputs.pop("labels")
         else:
             labels = None
-        outputs = model(**inputs)
+        # reg_a = self.reg_keys[int(inputs['reg'][0])]
+        lang_a =self.lang_keys[int(inputs['lang'][0])]
+        if len(self.reg_keys)!=0:
+            reg_a = self.reg_keys[int(inputs['reg'][0])]
+            adapter_name= ['family',reg_a,lang_a]
+        else:
+            adapter_name= ['family',lang_a]
+        # del_keys = ['lang','reg']
+        # for k in del_keys:
+        #     if k in inputs:
+        #         del inputs[k]
+        outputs = model(input_ids=inputs['input_ids'], 
+            # token_type_ids=inputs['token_type_ids'], 
+            attention_mask=inputs['attention_mask'], 
+            labels=inputs['labels'],
+            adapter_names=adapter_name  )
         # Save past state if it exists
         # TODO: this needs to be fixed and made cleaner later.
         if self.args.past_index >= 0:
