@@ -29,18 +29,25 @@ import numpy as np
 from datasets import load_dataset, load_metric
 
 import transformers
+
+import transformers.adapters.composition as ac
 from transformers import (
+    AdapterConfig,
+    AdapterTrainer,
     AutoConfig,
     AutoModelForSequenceClassification,
     AutoTokenizer,
     DataCollatorWithPadding,
     EvalPrediction,
     HfArgumentParser,
+    MultiLingAdapterArguments,
+    PretrainedConfig,
     Trainer,
     TrainingArguments,
     default_data_collator,
     set_seed,
 )
+
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
@@ -53,6 +60,19 @@ require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/text
 
 logger = logging.getLogger(__name__)
 
+task_to_keys = {
+    "cola": ("sentence", None),
+    "mnli": ("premise", "hypothesis"),
+    "xnli": ("premise", "hypothesis"),
+    "mrpc": ("sentence1", "sentence2"),
+    "qnli": ("question", "sentence"),
+    "qqp": ("question1", "question2"),
+    "rte": ("sentence1", "sentence2"),
+    "sst2": ("sentence", None),
+    "stsb": ("sentence1", "sentence2"),
+    "wnli": ("sentence1", "sentence2"),
+
+}
 
 @dataclass
 class DataTrainingArguments:
@@ -73,6 +93,13 @@ class DataTrainingArguments:
     )
     overwrite_cache: bool = field(
         default=False, metadata={"help": "Overwrite the cached preprocessed datasets or not."}
+    )
+    dataset_name: Optional[str] = field(
+        default=None, metadata={"help": "The name of the dataset to use (via the datasets library)."}
+    )
+    task_name: Optional[str] = field(
+        default=None,
+        metadata={"help": "The name of the task to train on: " + ", ".join(task_to_keys.keys())},
     )
     pad_to_max_length: bool = field(
         default=True,
@@ -105,6 +132,13 @@ class DataTrainingArguments:
     server_ip: Optional[str] = field(default=None, metadata={"help": "For distant debugging."})
     server_port: Optional[str] = field(default=None, metadata={"help": "For distant debugging."})
 
+    def __post_init__(self):
+        if self.task_name is not None:
+            self.task_name = self.task_name.lower()
+            if self.task_name not in task_to_keys.keys():
+                raise ValueError("Unknown task, you should pick one in " + ",".join(task_to_keys.keys()))
+
+
 
 @dataclass
 class ModelArguments:
@@ -115,11 +149,14 @@ class ModelArguments:
     model_name_or_path: str = field(
         default=None, metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"}
     )
-    language: str = field(
-        default=None, metadata={"help": "Evaluation language. Also train language if `train_language` is set to None."}
-    )
+    # language: str = field(
+    #     default=None, metadata={"help": "Evaluation language. Also train language if `train_language` is set to None."}
+    # )
     train_language: Optional[str] = field(
         default=None, metadata={"help": "Train language if it is different from the evaluation language."}
+    )
+    test_language: Optional[str] = field(
+        default=None, metadata={"help": "Test language if it is different from the evaluation language."}
     )
     config_name: Optional[str] = field(
         default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
@@ -157,8 +194,8 @@ def main():
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
-    model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments, MultiLingAdapterArguments))
+    model_args, data_args, training_args, adapter_args = parser.parse_args_into_dataclasses()
 
     # Setup distant debugging if needed
     if data_args.server_ip and data_args.server_port:
@@ -213,19 +250,19 @@ def main():
     # Downloading and loading xnli dataset from the hub.
     if training_args.do_train:
         if model_args.train_language is None:
-            train_dataset = load_dataset("xnli", model_args.language, split="train", cache_dir=model_args.cache_dir)
+            train_dataset = load_dataset(data_args.dataset_name, model_args.language, split="train", cache_dir=model_args.cache_dir)
         else:
             train_dataset = load_dataset(
-                "xnli", model_args.train_language, split="train", cache_dir=model_args.cache_dir
+                data_args.dataset_name, model_args.train_language, split="train", cache_dir=model_args.cache_dir
             )
         label_list = train_dataset.features["label"].names
 
     if training_args.do_eval:
-        eval_dataset = load_dataset("xnli", model_args.language, split="validation", cache_dir=model_args.cache_dir)
+        eval_dataset = load_dataset(data_args.dataset_name, model_args.language, split="validation", cache_dir=model_args.cache_dir)
         label_list = eval_dataset.features["label"].names
 
-    if training_args.do_predict:
-        predict_dataset = load_dataset("xnli", model_args.language, split="test", cache_dir=model_args.cache_dir)
+    if training_args.do_predict or training_args.do_predict_all:
+        predict_dataset = load_dataset(data_args.dataset_name, model_args.test_language, split="test", cache_dir=model_args.cache_dir)
         label_list = predict_dataset.features["label"].names
 
     # Labels
@@ -258,6 +295,94 @@ def main():
         revision=model_args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
     )
+
+    task_name = data_args.task_name +"_" + model_args.train_language
+    # Setup adapters
+    if adapter_args.train_adapter:
+        # check if adapter already exists, otherwise add it
+        if task_name not in model.config.adapters:
+            # resolve the adapter config
+            adapter_config = AdapterConfig.load(
+                adapter_args.adapter_config,
+                non_linearity=adapter_args.adapter_non_linearity,
+                reduction_factor=adapter_args.adapter_reduction_factor,
+            )
+            # load a pre-trained from Hub if specified
+            if adapter_args.load_adapter:
+                model.load_adapter(
+                    adapter_args.load_adapter,
+                    config=adapter_config,
+                    load_as=task_name,
+                )
+            # otherwise, add a fresh adapter
+            else:
+                model.add_adapter(task_name, config=adapter_config)
+        # optionally load a pre-trained language adapter
+        if adapter_args.load_lang_adapter:
+            # resolve the language adapter config
+            lang_adapter_config = AdapterConfig.load(
+                adapter_args.lang_adapter_config,
+                non_linearity=adapter_args.lang_adapter_non_linearity,
+                reduction_factor=adapter_args.lang_adapter_reduction_factor,
+            )
+            # load the language adapter from Hub
+            lang_adapter_name = model.load_adapter(
+                adapter_args.load_lang_adapter,
+                config=lang_adapter_config,
+                load_as=adapter_args.language,
+            )
+
+        else:
+            lang_adapter_name = None
+
+        if adapter_args.load_region_adapter:
+            region_adapter_config = AdapterConfig.load(
+                adapter_args.region_adapter_config,
+                non_linearity=adapter_args.lang_adapter_non_linearity,
+                reduction_factor=adapter_args.lang_adapter_reduction_factor,
+            )
+            region_adapter_name = model.load_adapter(
+                adapter_args.load_region_adapter,
+                config=region_adapter_config,
+                load_as='region',
+            )
+        else:
+            region_adapter_name = None
+
+        if adapter_args.load_family_adapter:
+            family_adapter_config = AdapterConfig.load(
+                adapter_args.family_adapter_config,
+                non_linearity=adapter_args.lang_adapter_non_linearity,
+                reduction_factor=adapter_args.lang_adapter_reduction_factor,
+            )
+            family_adapter_name = model.load_adapter(
+                adapter_args.load_family_adapter,
+                config=family_adapter_config,
+                load_as='family',
+            )
+        else:
+            family_adapter_name = None
+        # Freeze all model weights except of those of this adapter
+        model.train_adapter([task_name])
+        # Set the adapters to be used in every forward pass
+        if lang_adapter_name and family_adapter_name is None and region_adapter_name is None:
+            model.set_active_adapters(ac.Stack(lang_adapter_name, task_name))
+            logger.info('set active {}-{}'.format(lang_adapter_name,task_name))
+        elif lang_adapter_name and family_adapter_name and region_adapter_name is None:
+            model.set_active_adapters(ac.Stack(family_adapter_name,lang_adapter_name, task_name))
+            logger.info('set active {}-{}-{}'.format(family_adapter_name,lang_adapter_name,task_name))
+        elif lang_adapter_name and family_adapter_name and region_adapter_name:
+            model.set_active_adapters(ac.Stack(family_adapter_name,region_adapter_name, lang_adapter_name, task_name))
+            logger.info('set active {}-{}-{}-{}'.format(family_adapter_name,region_adapter_name,lang_adapter_name,task_name))
+        else:
+            model.set_active_adapters(task_name)
+            logger.info('set active {}'.format(task_name))
+    else:
+        if adapter_args.load_adapter or adapter_args.load_lang_adapter:
+            raise ValueError(
+                "Adapters can only be loaded in adapters training mode."
+                "Use --train_adapter to enable adapter training"
+            )
 
     # Preprocessing the datasets
     # Padding strategy
@@ -332,7 +457,8 @@ def main():
         data_collator = None
 
     # Initialize our Trainer
-    trainer = Trainer(
+    trainer_class = AdapterTrainer if adapter_args.train_adapter else Trainer
+    trainer = trainer_class(
         model=model,
         args=training_args,
         train_dataset=train_dataset if training_args.do_train else None,
@@ -395,6 +521,434 @@ def main():
                     item = label_list[item]
                     writer.write(f"{index}\t{item}\n")
 
+
+    def load_tadapters(tad,tname):
+                task_adapter_config = AdapterConfig.load(
+                                config="pfeiffer", non_linearity="gelu", reduction_factor=16
+                            )
+                task_adapter_name = model.load_adapter(
+                    tad,
+                    config=task_adapter_config,
+                    load_as=tname,
+                )
+
+                return task_adapter_name
+
+
+    def load_ladapters(lad,lang):
+        lang_adapter_config = AdapterConfig.load(
+                        os.path.join(lad,'adapter_config.json'),
+                        non_linearity="gelu",
+                        reduction_factor=2
+                    )
+
+        lang_adapter_name = model.load_adapter(
+            lad,
+            config=lang_adapter_config,
+            load_as=lang
+        )
+        return lang_adapter_name
+    
+    def load_fadapters(fadp,name):
+        family_adapter_config = AdapterConfig.load(
+                        os.path.join(fadp,'adapter_config.json'),
+                        non_linearity="gelu",
+                        reduction_factor=2
+                    )
+
+        family_adapter_name = model.load_adapter(
+            fadp,
+            config=family_adapter_config,
+            load_as=name
+        )
+        return family_adapter_name
+
+
+    def get_dataset(datalang):
+        predict_dataset = load_dataset(data_args.dataset_name, datalang, split="test", cache_dir=model_args.cache_dir)
+        label_list = predict_dataset.features["label"].names
+
+        num_labels = len(label_list)
+
+        if data_args.max_predict_samples is not None:
+            predict_dataset = predict_dataset.select(range(data_args.max_predict_samples))
+        with training_args.main_process_first(desc="prediction dataset map pre-processing"):
+            predict_dataset = predict_dataset.map(
+                preprocess_function,
+                batched=True,
+                load_from_cache_file=not data_args.overwrite_cache,
+                desc="Running tokenizer on prediction dataset",
+            )
+
+        return predict_dataset
+
+    def predict_sing(trainer, predict_dataset,writer):
+        predictions, labels, metrics = trainer.predict(predict_dataset, metric_key_prefix="predict")
+        predictions = np.argmax(predictions, axis=1)
+
+        max_predict_samples = (
+            data_args.max_predict_samples if data_args.max_predict_samples is not None else len(predict_dataset)
+        )
+        metrics["predict_samples"] = min(max_predict_samples, len(predict_dataset))
+
+        trainer.log_metrics("predict", metrics)
+        trainer.save_metrics("predict", metrics)
+
+
+        return metrics
+
+
+
+    if training_args.do_predict_all:
+        task_adapters =[
+            'xnli'
+        ]
+
+        # lang_adapters={  
+        #         "et_1m":"et_edt",
+        #         "fi_1m":"fi_tdt",
+        #         "hu_1m":"hu_szeged",
+        #         "koi_10k":"koi_uh",
+        #         "kpv_13k":"kpv_lattice",
+        #         "krl_5k":"krl_kkpp",
+        #         "mdf_5k":"mdf_jr",
+        #         "myv_29k":"myv_jr",
+        #         "olo_19k":"olo_kkpp",
+        #         "sme_10k":"sme_giella",
+        #         "sms_3k":"sms_giellagas" 
+        # }
+
+        # lang_adapters ={
+        #     'bzd':'bzd',
+        #     'oto':'oto',
+        #     'nah':'nah',
+        #     'tar':'tar',
+        #     'hch':'hch',
+        #     'aym':'aym',
+        #     'cni':'cni',
+        #     'gn':'gn',
+        #     'quy':'quy',
+        #     'shp':'shp'            
+        # }
+
+        # region_adapters = {
+        #     'bzd':'chibchan',
+        #     'oto':'utoaztacen',
+        #     'nah':'utoaztacen',
+        #     'tar':'utoaztacen',
+        #     'hch':'utoaztacen',
+        #     'aym':'quechuan',
+        #     'cni':'quechuan',
+        #     'gn':'quechuan',
+        #     'quy':'quechuan',
+        #     'shp':'quechuan' 
+        # }
+        # lang_adapters ={
+        #     'nah':'nah',
+        #     'tar':'tar',
+        #     'hch':'hch',
+        #     'gn':'gn',           
+        # }
+        # region_adapters={
+        #     'nah':'aztecan',
+        #     'tar':'tarahumaran',
+        #     'hch':'corachol',
+        #     'gn':'tupi_guarani'
+        # }
+
+        adapter_info={
+            'nah':{
+                'lang':'nah',
+                'region':'aztecan',
+                'lang_path_j':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_40/nah',
+                'region_path':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_40/aztecan',
+                'family_path_j':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_40/family',
+                'lang_path_nj':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_nj40/nah/mlm',
+                'family_path_nj':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_nj40/family/mlm',
+                },
+            'tar':{
+                'lang':'tar',
+                'region':'tarahumaran',
+                'lang_path_j':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_40/tar',
+                'region_path':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_40/aztecan',
+                'family_path_j':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_40/family',
+                'lang_path_nj':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_nj40/tar/mlm',
+                'family_path_nj':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_nj40/family/mlm',
+                },
+            'hch':{
+                'lang':'hch',
+                'region':'corachol',
+                'lang_path_j':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_40/hch',
+                'region_path':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_40/aztecan',
+                'family_path_j':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_40/family',
+                'lang_path_nj':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_nj40/hch/mlm',
+                'family_path_nj':'/scratch/ffaisal/run_mlm/adapter/uto_aztecan_nj40/family/mlm',
+                },
+            'gn':{
+                'lang':'gn',
+                'region':'tupi_guarani',
+                'lang_path_j':'/scratch/ffaisal/run_mlm/adapter/tupian_40/gn',
+                'region_path':'/scratch/ffaisal/run_mlm/adapter/tupian_40/tupi_guarani',
+                'family_path_j':'/scratch/ffaisal/run_mlm/adapter/tupian_40/family',
+                'lang_path_nj':'/scratch/ffaisal/run_mlm/adapter/tupian_nj40/gn/mlm',
+                'family_path_nj':'/scratch/ffaisal/run_mlm/adapter/tupian_nj40/family/mlm',
+                }
+        }
+
+
+
+        train_task_lang=data_args.task_name +"_" + model_args.train_language
+
+        task_path='/scratch/ffaisal/run_mlm/experiments/xnli'
+        # lang_path_nrg = '/scratch/ffaisal/run_mlm/adapter/ura_lang_joint'
+        # family_path_nrg = '/scratch/ffaisal/run_mlm/adapter/ura_lang_joint'
+        # lang_path_j = '/scratch/ffaisal/run_mlm/adapter/ame_lang_region_joint_r48'
+        # family_path_j = '/scratch/ffaisal/run_mlm/adapter/ame_lang_region_joint_r48/family'
+        # region_path = '/scratch/ffaisal/run_mlm/adapter/ame_lang_region_joint_r48'
+        # lang_path_nj = '/scratch/ffaisal/run_mlm/adapter/ura_lang'
+        # family_path_nj = '/scratch/ffaisal/run_mlm/adapter/ura_lang/family/mlm'
+
+
+
+
+        logger.info("*** Predict ***")
+
+        # Save predictions
+        output_predictions_file = os.path.join(training_args.output_dir, "test_results.txt")
+        if trainer.is_world_process_zero():
+            writer = open(output_predictions_file, "w")
+
+
+
+                
+
+        # logger.info('\n\n\nexperiment 0: [task]')
+        # tname=task_adapters[0]
+        # tad=os.path.join(task_path,tname,train_task_lang)
+        # logger.info(tad)
+        # task_adapter_name=load_tadapters()
+        # model.set_active_adapters(task_adapter_name)
+        # logger.info('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+        # for lang in lang_adapters:
+        #     logger.info(lang_adapters[lang])
+        #     model.to(training_args.device)
+        #     predict_dataset = get_dataset()
+        #     metrics = predict_sing(trainer, predict_dataset,writer)
+        #     logger.info("[task],%s,%s,%s,%s\n" % (tname, lang, metrics['predict_accuracy'], metrics['predict_accuracy']))
+        #     writer.write("[task],%s,%s,%s,%s\n" % (tname, lang, metrics['predict_accuracy'], metrics['predict_accuracy']))
+        # model.delete_adapter(task_adapter_name)
+
+
+        # logger.info('\n\n\nexperiment 1: [task+lang->not joint]')
+        # tname=task_adapters[5]
+        # tad=os.path.join(task_path,tname,train_task_lang)
+        # logger.info(tad)
+        # task_adapter_name=load_tadapters()
+        # logger.info('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+        # for lang in lang_adapters:
+        #     lad= os.path.join(lang_path_nj,lang,'mlm')
+        #     logger.info("lad: {}".format(lad))
+        #     logger.info(lang_adapters[lang])
+        #     lang_adapter_name=load_ladapters()          
+        #     model.set_active_adapters(ac.Stack(lang_adapter_name, task_adapter_name))
+        #     model.to(training_args.device)
+        #     predict_dataset = get_dataset()
+        #     metrics = predict_sing(trainer, predict_dataset,writer)
+        #     model.delete_adapter(lang_adapter_name)
+        #     logger.info("[lang+task],%s,%s,%s,%s\n" % (tname, lang, metrics['predict_accuracy'], metrics['predict_accuracy']))
+        #     writer.write("[lang+task],%s,%s,%s,%s\n" % (tname, lang, metrics['predict_accuracy'], metrics['predict_accuracy']))
+        #     model.delete_adapter(lang_adapter_name)
+        # model.delete_adapter(task_adapter_name)
+
+            
+        # logger.info('\n\n\nexperiment 2: [lang+family->not joint]')
+        # tname=task_adapters[6]
+        # tad=os.path.join(task_path,tname,train_task_lang)
+        # logger.info(tad)
+        # task_adapter_name=load_tadapters()
+        # fad = family_path_nj
+        # family_adapter_name=load_fadapters(fad,'family')
+        # logger.info('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+        # for lang in lang_adapters:
+        #     lad= os.path.join(lang_path_nj,lang,'mlm')
+        #     logger.info("lad: {}\nfad: {}".format(lad,fad))
+        #     logger.info(lang_adapters[lang])
+        #     lang_adapter_name=load_ladapters()          
+        #     model.set_active_adapters(ac.Stack(family_adapter_name,lang_adapter_name, task_adapter_name))
+        #     model.to(training_args.device)
+        #     predict_dataset = get_dataset()
+        #     metrics = predict_sing(trainer, predict_dataset,writer)
+        #     logger.info("[family+lang+task],%s,%s,%s,%s\n" % (tname, lang, metrics['predict_accuracy'], metrics['predict_accuracy']))
+        #     writer.write("[family+lang+task],%s,%s,%s,%s\n" % (tname, lang, metrics['predict_accuracy'], metrics['predict_accuracy']))
+        #     model.delete_adapter(lang_adapter_name)
+        # model.delete_adapter(family_adapter_name)
+        # model.delete_adapter(task_adapter_name)
+
+            
+        # logger.info('\n\n\nexperiment 3: [task+lang->joint]')
+        # tname=task_adapters[0]
+        # tad=os.path.join(task_path,tname,train_task_lang)
+        # logger.info(tad)
+        # task_adapter_name=load_tadapters()
+        # logger.info('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+        # for lang in lang_adapters:
+        #     lad= os.path.join(lang_path_j,lang)
+        #     logger.info("lad: {}".format(lad))
+        #     logger.info(lang_adapters[lang])
+        #     lang_adapter_name=load_ladapters()          
+        #     model.set_active_adapters(ac.Stack(lang_adapter_name, task_adapter_name))
+        #     model.to(training_args.device)
+        #     predict_dataset = get_dataset()
+        #     metrics = predict_sing(trainer, predict_dataset,writer)
+        #     logger.info("[lang+task->joint],%s,%s,%s,%s\n" % (tname, lang, metrics['predict_accuracy'], metrics['predict_accuracy']))
+        #     writer.write("[lang+task->joint],%s,%s,%s,%s\n" % (tname, lang, metrics['predict_accuracy'], metrics['predict_accuracy']))
+        #     model.delete_adapter(lang_adapter_name)
+        # model.delete_adapter(task_adapter_name)
+            
+        # logger.info('\n\n\nexperiment 4: [lang+family->joint]')
+        # tname=task_adapters[0]
+        # tad=os.path.join(task_path,tname,train_task_lang)
+        # logger.info(tad)
+        # task_adapter_name=load_tadapters()
+        # fad = family_path_j
+        # family_adapter_name=load_fadapters(fad, 'family')
+        # logger.info('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+        # for lang in lang_adapters:
+        #     lad= os.path.join(lang_path_j,lang)
+        #     logger.info("lad: {}\nfad: {}".format(lad,fad))
+        #     logger.info(lang_adapters[lang])
+        #     lang_adapter_name=load_ladapters()          
+        #     model.set_active_adapters(ac.Stack(family_adapter_name,lang_adapter_name, task_adapter_name))
+        #     model.to(training_args.device)
+        #     predict_dataset = get_dataset()
+        #     metrics = predict_sing(trainer, predict_dataset,writer)
+        #     logger.info("[family+lang+task->joint],%s,%s,%s,%s\n" % (tname, lang, metrics['predict_accuracy'], metrics['predict_accuracy']))
+        #     writer.write("[family+lang+task->joint],%s,%s,%s,%s\n" % (tname, lang, metrics['predict_accuracy'], metrics['predict_accuracy']))
+        #     model.delete_adapter(lang_adapter_name)
+        # model.delete_adapter(family_adapter_name)
+        # model.delete_adapter(task_adapter_name)
+
+        def  do_prediction_all(text,adapter_list):
+            logger.info('\n\n\n{}'.format(text))
+            model.set_active_adapters(adapter_list)
+            # else:
+            #     model.set_active_adapters(ac.Stack(adapter_list))
+            model.to(training_args.device)
+            metrics = predict_sing(trainer, predict_dataset,writer)
+            logger.info("%s,%s,%s,%s,%s\n" % (text,tname, 
+                lang, 
+                metrics['predict_accuracy'], 
+                metrics['predict_accuracy']))
+            writer.write("%s,%s,%s,%s,%s\n" % (text,tname, 
+                lang, 
+                metrics['predict_accuracy'], 
+                metrics['predict_accuracy']))
+            model.set_active_adapters(None)
+
+        tname=task_adapters[0]
+        tad=os.path.join(task_path,tname,train_task_lang)
+        logger.info('tad:{}, task_path:{}'.format(tad, tname))
+        task_adapter_name=load_tadapters(tad, tname)
+        for lang in adapter_info:
+            print(lang)
+            predict_dataset = get_dataset(adapter_info[lang]['lang'])
+            lad = adapter_info[lang]['lang_path_j']
+            lang_adapter_name=load_ladapters(lad,lang)
+            rad = adapter_info[lang]['region_path']
+            region_adapter_name=load_fadapters(rad,'region') 
+            fad = adapter_info[lang]['family_path_j']
+            family_adapter_name=load_fadapters(fad, 'family')
+
+            do_prediction_all('[task]',[task_adapter_name])           
+            do_prediction_all('[task+lang->joint]',[lang_adapter_name, task_adapter_name])
+            do_prediction_all('[task+lang+family->joint]',[family_adapter_name,lang_adapter_name, task_adapter_name])
+            do_prediction_all('[task+lang+region+family->joint]',[family_adapter_name,region_adapter_name,
+                                               lang_adapter_name, task_adapter_name])
+
+            model.delete_adapter(lang_adapter_name)
+            model.delete_adapter(region_adapter_name)
+            model.delete_adapter(family_adapter_name)
+
+            lad = adapter_info[lang]['lang_path_nj']
+            lang_adapter_name=load_ladapters(lad,lang) 
+            fad = adapter_info[lang]['family_path_nj']
+            family_adapter_name=load_fadapters(fad, 'family')
+            do_prediction_all('[task+lang]',[lang_adapter_name, task_adapter_name])
+            do_prediction_all('[task+lang+family]',[family_adapter_name,lang_adapter_name, task_adapter_name])
+        model.delete_adapter(task_adapter_name)
+
+
+
+            
+
+        # logger.info('\n\n\nexperiment 5: [lang+region+family->joint]')
+        # tname=task_adapters[0]
+        # tad=os.path.join(task_path,tname,train_task_lang)
+        # logger.info('tad:{}, task_path:{}'.format(tad, tname))
+        # task_adapter_name=load_tadapters()
+        # fad = os.path.join(region_path,'family')
+        # family_adapter_name=load_fadapters(fad, 'family')
+        # logger.info('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+        # for lang in lang_adapters:
+        #     lad= os.path.join(region_path,lang)
+        #     logger.info("lad: {}\nfad: {}".format(lad,fad))
+        #     logger.info(lang_adapters[lang])
+        #     lang_adapter_name=load_ladapters() 
+            
+        #     rad= os.path.join(region_path,region_adapters[lang])
+        #     logger.info(rad)
+        #     region_adapter_name=load_fadapters(rad,'region') 
+            
+        #     model.set_active_adapters(ac.Stack(family_adapter_name,region_adapter_name,
+        #                                        lang_adapter_name, task_adapter_name))
+        #     model.to(training_args.device)
+        #     predict_dataset = get_dataset()
+        #     metrics = predict_sing(trainer, predict_dataset,writer)
+        #     logger.info("[family+region+lang+task->joint],%s,%s,%s,%s\n" % (tname, 
+        #         lang, 
+        #         metrics['predict_accuracy'], 
+        #         metrics['predict_accuracy']))
+        #     writer.write("[family+region+lang+task->joint],%s,%s,%s,%s\n" % (tname, 
+        #         lang, 
+        #         metrics['predict_accuracy'], 
+        #         metrics['predict_accuracy']))
+        #     model.delete_adapter(region_adapter_name)
+        #     model.delete_adapter(lang_adapter_name)
+        # model.delete_adapter(family_adapter_name)
+        # model.delete_adapter(task_adapter_name)
+
+
+        # logger.info('\n\n\nexperiment 6: [lang+family->joint (ntrj)]')
+        # tname=task_adapters[4]
+        # tad=os.path.join(task_path,tname,train_task_lang)
+        # logger.info(tad)
+        # task_adapter_name=load_tadapters()
+        # fad = os.path.join(family_path_nrg,'family')
+        # family_adapter_name=load_fadapters(fad, 'family')
+        # logger.info('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+        # for lang in lang_adapters:
+        #     lad= os.path.join(lang_path_nrg,lang)
+        #     logger.info("lad: {}\nfad: {}".format(lad,fad))
+        #     logger.info(lang_adapters[lang])
+        #     lang_adapter_name=load_ladapters()          
+        #     model.set_active_adapters(ac.Stack(family_adapter_name,lang_adapter_name, task_adapter_name))
+        #     model.to(training_args.device)
+        #     predict_dataset = get_dataset()
+        #     metrics = predict_sing(trainer, predict_dataset,writer)
+        #     logger.info("[family+lang+task->joint_ntrg],%s,%s,%s,%s\n" % (tname, 
+        #         lang, 
+        #         metrics['predict_accuracy'], 
+        #         metrics['predict_accuracy']))
+        #     writer.write("[family+lang+task->joint_ntrg],%s,%s,%s,%s\n" % (tname, 
+        #         lang, 
+        #         metrics['predict_accuracy'], 
+        #         metrics['predict_accuracy']))
+        #     model.delete_adapter(lang_adapter_name)
+        # model.delete_adapter(family_adapter_name)
+        # model.delete_adapter(task_adapter_name)
+           
+        
+        logger.info('-------------')
 
 if __name__ == "__main__":
     main()

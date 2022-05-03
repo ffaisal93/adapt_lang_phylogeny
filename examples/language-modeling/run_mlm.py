@@ -191,6 +191,7 @@ class DataTrainingArguments:
             raise ValueError("Need either a dataset name or a training/validation file.")
         else:
             if self.train_file is not None:
+                print(self.train_file,"----")
                 extension = self.train_file.split(".")[-1]
                 if extension not in ["csv", "json", "txt"]:
                     raise ValueError("`train_file` should be a csv, a json or a txt file.")
@@ -236,7 +237,7 @@ def main():
     )
     # Set the verbosity to info of the Transformers logger (on main process only):
     logger.info(f"Training/evaluation parameters {training_args}")
-
+    logger.info(f"-+-{model_args.cache_dir}---{model_args.model_name_or_path}")
     # Detecting last checkpoint.
     last_checkpoint = None
     if os.path.isdir(training_args.output_dir) and training_args.do_train and not training_args.overwrite_output_dir:

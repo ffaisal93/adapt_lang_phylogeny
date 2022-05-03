@@ -222,15 +222,56 @@ def main():
                 load_as=adapter_args.language,
                 leave_out=leave_out,
             )
+
         else:
             lang_adapter_name = None
+
+        if adapter_args.load_region_adapter:
+            region_adapter_config = AdapterConfig.load(
+                adapter_args.region_adapter_config,
+                non_linearity=adapter_args.lang_adapter_non_linearity,
+                reduction_factor=adapter_args.lang_adapter_reduction_factor,
+                leave_out=leave_out,
+            )
+            region_adapter_name = model.load_adapter(
+                adapter_args.load_region_adapter,
+                config=region_adapter_config,
+                load_as='region',
+                leave_out=leave_out,
+            )
+        else:
+            region_adapter_name = None
+
+        if adapter_args.load_family_adapter:
+            family_adapter_config = AdapterConfig.load(
+                adapter_args.family_adapter_config,
+                non_linearity=adapter_args.lang_adapter_non_linearity,
+                reduction_factor=adapter_args.lang_adapter_reduction_factor,
+                leave_out=leave_out,
+            )
+            family_adapter_name = model.load_adapter(
+                adapter_args.load_family_adapter,
+                config=family_adapter_config,
+                load_as='family',
+                leave_out=leave_out,
+            )
+        else:
+            family_adapter_name = None
         # Freeze all model weights except of those of this adapter
         model.train_adapter([task_name])
         # Set the adapters to be used in every forward pass
-        if lang_adapter_name:
+        if lang_adapter_name and family_adapter_name is None and region_adapter_name is None:
             model.set_active_adapters(ac.Stack(lang_adapter_name, task_name))
+            logger.info('set active {}-{}'.format(lang_adapter_name,task_name))
+        elif lang_adapter_name and family_adapter_name and region_adapter_name is None:
+            model.set_active_adapters(ac.Stack(family_adapter_name,lang_adapter_name, task_name))
+            logger.info('set active {}-{}-{}'.format(family_adapter_name,lang_adapter_name,task_name))
+        elif lang_adapter_name and family_adapter_name and region_adapter_name:
+            model.set_active_adapters(ac.Stack(family_adapter_name,region_adapter_name, lang_adapter_name, task_name))
+            logger.info('set active {}-{}-{}-{}'.format(family_adapter_name,region_adapter_name,lang_adapter_name,task_name))
         else:
             model.set_active_adapters(task_name)
+            logger.info('set active {}'.format(task_name))
     else:
         if adapter_args.load_adapter or adapter_args.load_lang_adapter:
             raise ValueError(
@@ -271,6 +312,7 @@ def main():
 
     # Evaluation
     results = {}
+    training_args.do_eval=False
     if training_args.do_eval:
         logger.info("*** Evaluate ***")
 
@@ -338,6 +380,184 @@ def main():
                 for key, value in metrics.items():
                     logger.info("  %s = %s", key, value)
                     writer.write("%s = %s\n" % (key, value))
+
+    def load_tadapters(tad, tname):
+                task_adapter_config = AdapterConfig.load(
+                                config="pfeiffer", non_linearity="gelu", reduction_factor=16, leave_out=leave_out
+                            )
+                task_adapter_name = model.load_adapter(
+                    tad,
+                    config=task_adapter_config,
+                    load_as=tname,
+                    leave_out=leave_out,
+                )
+
+                return task_adapter_name
+
+
+    def load_ladapters(lad, lang):
+        lang_adapter_config = AdapterConfig.load(
+                        os.path.join(lad,'adapter_config.json'),
+                        non_linearity="gelu",
+                        leave_out=leave_out
+                    )
+
+        lang_adapter_name = model.load_adapter(
+            lad,
+            config=lang_adapter_config,
+            load_as=lang,
+            leave_out=leave_out
+        )
+        return lang_adapter_name
+    
+    def load_fadapters(fadp,name):
+        family_adapter_config = AdapterConfig.load(
+                        os.path.join(fadp,'adapter_config.json'),
+                        non_linearity="gelu",
+                        leave_out=leave_out
+                    )
+
+        family_adapter_name = model.load_adapter(
+            fadp,
+            config=family_adapter_config,
+            load_as=name,
+            leave_out=leave_out
+        )
+        return family_adapter_name
+
+
+    def get_dataset(data_lang):
+        dataset = load_dataset("../adapter-transformers/examples/dependency-parsing/universal_dependencies.py", data_lang,
+                               split=['test'], cache_dir=model_args.cache_dir)
+        dataset = datasets.DatasetDict({"train":dataset[0],"test":dataset[0]})
+        dataset = preprocess_dataset(dataset, tokenizer, labels, data_args, pad_token_id=-1)
+        print(dataset)
+        return dataset
+        
+    if training_args.do_predict_all:
+
+
+        task_adapters =[
+            'en_ewt',
+            'en_ewt_lang',
+            'en_ewt_joint_lang_family_region',
+
+        ]
+        task_adapters =[
+            'et_edt',
+            'et_edt_lang',
+            'et_edt_joint_lang_family_region',
+
+        ]
+        
+
+
+        train_task_lang='ud_en_ewt'
+        train_task_lang='ud_et_edt'
+
+
+        logging.info("*** Test ***")
+
+         # Opening JSON file
+        import json
+        fam = 'uralic_up'
+        with open('/scratch/ffaisal/run_mlm/pred_meta.json') as json_file:
+            ad_data = json.load(json_file)
+        adapter_info = ad_data[fam]
+        
+        output_test_results_file = os.path.join(training_args.output_dir, "test_results.txt")
+        if trainer.is_world_process_zero():
+            writer = open(output_test_results_file, "w")
+
+
+        # task_path='/scratch/ffaisal/run_mlm/experiments/udp/'
+        # lang_path_nj = '/scratch/ffaisal/run_mlm/adapter/1m_lang'
+        # family_path_nj = '/scratch/ffaisal/run_mlm/adapter/1m_lang/1m_all/mlm'
+        # lang_path_j = '/scratch/ffaisal/run_mlm/adapter/h_1m_lang_joint_n'
+        # family_path_j = '/scratch/ffaisal/run_mlm/adapter/h_1m_lang_joint_n/family'
+        # region_path = '/scratch/ffaisal/run_mlm/adapter/h_1m_lang_region_joint'
+
+        task_path='/scratch/ffaisal/run_mlm/experiments/udp/'
+
+
+
+        def  do_prediction_all(text,adapter_list):
+            logger.info('\n\n\n{}'.format(text))
+            model.set_active_adapters(adapter_list)
+            # else:
+            #     model.set_active_adapters(ac.Stack(adapter_list))
+            model.to(training_args.device)
+            predictions, _, metrics = trainer.predict(predict_dataset["test"])
+            logger.info("%s,%s,%s,%s,%s\n" % (text,adapter_list[-1], 
+                lang, 
+                metrics['uas'], 
+                metrics['las']))
+            writer.write("%s,%s,%s,%s,%s\n" % (text,adapter_list[-1],
+                lang, 
+                metrics['uas'], 
+                metrics['las']))
+            model.set_active_adapters(None)
+
+        tname_t=task_adapters[0]
+        tad=os.path.join(task_path,tname_t,train_task_lang)
+        logger.info('tad:{}, task_path:{}'.format(tad, tname_t))
+        task_adapter_name_t=load_tadapters(tad, tname_t)
+        tname_lt=task_adapters[1]
+        tad=os.path.join(task_path,tname_lt,train_task_lang)
+        logger.info('tad:{}, task_path:{}'.format(tad, tname_lt))
+        task_adapter_name_lt=load_tadapters(tad, tname_lt)
+        tname_j=task_adapters[2]
+        tad=os.path.join(task_path,tname_j,train_task_lang)
+        logger.info('tad:{}, task_path:{}'.format(tad, tname_j))
+        task_adapter_name_j=load_tadapters(tad, tname_j)
+        for lang in adapter_info:
+            print(lang)
+            predict_dataset = get_dataset(adapter_info[lang]['lang'])
+
+            do_prediction_all('[task]',[task_adapter_name_t])
+
+            lad = adapter_info[lang]['lang_path_nj']
+            lang_adapter_name=load_ladapters(lad,lang) 
+            fad = adapter_info[lang]['family_path_nj']
+            family_adapter_name=load_fadapters(fad, 'family')
+            do_prediction_all('[task+lang]',[lang_adapter_name, task_adapter_name_lt])
+            do_prediction_all('[task+lang+family]',[family_adapter_name,lang_adapter_name, task_adapter_name_j]) 
+
+            model.delete_adapter(lang_adapter_name)
+            model.delete_adapter(family_adapter_name)
+
+            lad = adapter_info[lang]['lang_path_j']
+            lang_adapter_name=load_ladapters(lad,lang)
+            rad = adapter_info[lang]['region_path']
+            region_adapter_name=load_fadapters(rad,'region') 
+            fad = adapter_info[lang]['family_path_j']
+            family_adapter_name=load_fadapters(fad, 'family')
+
+            do_prediction_all('[task+lang->joint]',[lang_adapter_name, task_adapter_name_j])
+            do_prediction_all('[task+lang+family->joint]',[family_adapter_name,lang_adapter_name, task_adapter_name_j])
+            do_prediction_all('[task+lang+region+family->joint]',[family_adapter_name,region_adapter_name,
+                                               lang_adapter_name, task_adapter_name_j])
+
+            do_prediction_all('[task+family->joint]',[family_adapter_name, task_adapter_name_j])
+            do_prediction_all('[task+region+family->joint]',[family_adapter_name,region_adapter_name,
+                                               task_adapter_name_j])
+
+            model.delete_adapter(lang_adapter_name)
+            model.delete_adapter(region_adapter_name)
+            model.delete_adapter(family_adapter_name)
+        model.delete_adapter(task_adapter_name_t)
+        model.delete_adapter(task_adapter_name_lt)
+        model.delete_adapter(task_adapter_name_j)
+
+        
+ 
+
+
+
+
+            
+        
+        logger.info('-------------')
 
     return results
 

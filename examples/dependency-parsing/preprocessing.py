@@ -61,7 +61,7 @@ def preprocess_dataset(
             pad_item = [pad_token_id]
 
             # pad or truncate arc labels
-            labels_arcs = [int(h) for h in heads]
+            labels_arcs = [int(h) if h!="None" else 0 for h in heads]
             labels_arcs = labels_arcs + (data_args.max_seq_length - len(labels_arcs)) * pad_item
 
             # convert rel labels from map, pad or truncate if necessary
