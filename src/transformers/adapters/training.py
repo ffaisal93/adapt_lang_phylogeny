@@ -23,7 +23,6 @@ class AdapterArguments:
     )
     language: Optional[str] = field(default=None, metadata={"help": "The training language, e.g. 'en' for English."})
 
-
 @dataclass
 class MultiLingAdapterArguments(AdapterArguments):
     """
@@ -36,9 +35,22 @@ class MultiLingAdapterArguments(AdapterArguments):
     lang_adapter_config: Optional[str] = field(
         default=None, metadata={"help": "Language adapter configuration. Either an identifier or a path to a file."}
     )
+    load_family_adapter: Optional[str] = field(
+        default=None, metadata={"help": "Pre-trained language adapter module to be loaded from Hub."}
+    )
+    family_adapter_config: Optional[str] = field(
+        default=None, metadata={"help": "Language adapter configuration. Either an identifier or a path to a file."}
+    )
+    load_region_adapter: Optional[str] = field(
+        default=None, metadata={"help": "Pre-trained language adapter module to be loaded from Hub."}
+    )
+    region_adapter_config: Optional[str] = field(
+        default=None, metadata={"help": "Language adapter configuration. Either an identifier or a path to a file."}
+    )
     lang_adapter_non_linearity: Optional[str] = field(
         default=None, metadata={"help": "Override the non-linearity of the language adapter configuration."}
     )
     lang_adapter_reduction_factor: Optional[int] = field(
         default=None, metadata={"help": "Override the reduction factor of the language adapter configuration."}
     )
+
