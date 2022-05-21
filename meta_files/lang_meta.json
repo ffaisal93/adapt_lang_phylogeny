@@ -1,0 +1,52 @@
+{
+    "tupian": {
+        "gn": "tupi_guarani",
+        "gnw": "tupi_guarani",
+        "gub": "tupi_guarani",
+        "gun": "tupi_guarani",
+        "myu": "munduruku",
+        "urb": "tupi_guarani"
+    },
+    "uto_aztecan": {
+        "crn": "corachol",
+        "hch": "corachol",
+        "mfy": "yaqui",
+        "nah": "aztecan",
+        "ntp": "tepiman",
+        "ood": "tepiman",
+        "stp": "tepiman",
+        "tar": "tarahumaran",
+        "yaq": "yaqui"
+    },
+    "germanic": {
+        "af":"west",
+        "en_1m":"west",
+        "fao_300k":"north",
+        "gotica":"west",
+        "is_1m":"north",
+        "sv_1m":"north",
+        "no_1m":"north",
+        "da_1m":"north",
+        "de_1m":"west",
+        "nl_1m":"west",
+        "low_saxon":"west",
+        "swiss-german_100k":"west"},
+
+     "uralic": {"et_1m": "finnic",
+         "fi_1m": "finnic",
+         "hu_1m": "hungarian",
+         "koi_10k": "permic",
+         "kpv_13k": "permic",
+         "krl_5k": "finnic",
+         "mdf_5k": "mordvinic",
+         "myv_29k": "mordvinic",
+         "olo_19k": "finnic",
+         "sme_10k": "sami",
+        "sms_3k": "sami"},
+
+    "uralic_demo":{
+        "et_1m": "finnic",
+        "fi_1m": "finnic",
+        "koi_10k": "permic"
+    }
+}
