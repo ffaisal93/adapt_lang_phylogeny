@@ -1,0 +1,342 @@
+{
+    "uralic_up": {
+        "et": {
+            "family_path_j": "../adapters/mbert/uralic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uralic_up_l/family/mlm",
+            "lang": "et_edt",
+            "lang_path_j": "../adapters/mbert/uralic_up_fgl-j/et_1m",
+            "lang_path_nj": "../adapters/mbert/uralic_up_l/et_1m/mlm",
+            "region_path": "../adapters/mbert/uralic_up_fgl-j/finnic"
+        },
+        "fi": {
+            "family_path_j": "../adapters/mbert/uralic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uralic_up_l/family/mlm",
+            "lang": "fi_tdt",
+            "lang_path_j": "../adapters/mbert/uralic_up_fgl-j/fi_1m",
+            "lang_path_nj": "../adapters/mbert/uralic_up_l/fi_1m/mlm",
+            "region_path": "../adapters/mbert/uralic_up_fgl-j/finnic"
+        },
+        "hu": {
+            "family_path_j": "../adapters/mbert/uralic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uralic_up_l/family/mlm",
+            "lang": "hu_szeged",
+            "lang_path_j": "../adapters/mbert/uralic_up_fgl-j/hu_1m",
+            "lang_path_nj": "../adapters/mbert/uralic_up_l/hu_1m/mlm",
+            "region_path": "../adapters/mbert/uralic_up_fgl-j/hungarian"
+        },
+        "koi": {
+            "family_path_j": "../adapters/mbert/uralic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uralic_up_l/family/mlm",
+            "lang": "koi_uh",
+            "lang_path_j": "../adapters/mbert/uralic_up_fgl-j/koi_10k",
+            "lang_path_nj": "../adapters/mbert/uralic_up_l/koi_10k/mlm",
+            "region_path": "../adapters/mbert/uralic_up_fgl-j/permic"
+        },
+        "kpv": {
+            "family_path_j": "../adapters/mbert/uralic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uralic_up_l/family/mlm",
+            "lang": "kpv_lattice",
+            "lang_path_j": "../adapters/mbert/uralic_up_fgl-j/kpv_13k",
+            "lang_path_nj": "../adapters/mbert/uralic_up_l/kpv_13k/mlm",
+            "region_path": "../adapters/mbert/uralic_up_fgl-j/permic"
+        },
+        "krl": {
+            "family_path_j": "../adapters/mbert/uralic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uralic_up_l/family/mlm",
+            "lang": "krl_kkpp",
+            "lang_path_j": "../adapters/mbert/uralic_up_fgl-j/krl_5k",
+            "lang_path_nj": "../adapters/mbert/uralic_up_l/krl_5k/mlm",
+            "region_path": "../adapters/mbert/uralic_up_fgl-j/finnic"
+        },
+        "mdf": {
+            "family_path_j": "../adapters/mbert/uralic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uralic_up_l/family/mlm",
+            "lang": "mdf_jr",
+            "lang_path_j": "../adapters/mbert/uralic_up_fgl-j/mdf_5k",
+            "lang_path_nj": "../adapters/mbert/uralic_up_l/mdf_5k/mlm",
+            "region_path": "../adapters/mbert/uralic_up_fgl-j/mordvinic"
+        },
+        "myv": {
+            "family_path_j": "../adapters/mbert/uralic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uralic_up_l/family/mlm",
+            "lang": "myv_jr",
+            "lang_path_j": "../adapters/mbert/uralic_up_fgl-j/myv_29k",
+            "lang_path_nj": "../adapters/mbert/uralic_up_l/myv_29k/mlm",
+            "region_path": "../adapters/mbert/uralic_up_fgl-j/mordvinic"
+        },
+        "olo": {
+            "family_path_j": "../adapters/mbert/uralic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uralic_up_l/family/mlm",
+            "lang": "olo_kkpp",
+            "lang_path_j": "../adapters/mbert/uralic_up_fgl-j/olo_19k",
+            "lang_path_nj": "../adapters/mbert/uralic_up_l/olo_19k/mlm",
+            "region_path": "../adapters/mbert/uralic_up_fgl-j/finnic"
+        },
+        "sme": {
+            "family_path_j": "../adapters/mbert/uralic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uralic_up_l/family/mlm",
+            "lang": "sme_giella",
+            "lang_path_j": "../adapters/mbert/uralic_up_fgl-j/sme_10k",
+            "lang_path_nj": "../adapters/mbert/uralic_up_l/sme_10k/mlm",
+            "region_path": "../adapters/mbert/uralic_up_fgl-j/sami"
+        },
+        "sms": {
+            "family_path_j": "../adapters/mbert/uralic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uralic_up_l/family/mlm",
+            "lang": "sms_giellagas",
+            "lang_path_j": "../adapters/mbert/uralic_up_fgl-j/sms_3k",
+            "lang_path_nj": "../adapters/mbert/uralic_up_l/sms_3k/mlm",
+            "region_path": "../adapters/mbert/uralic_up_fgl-j/sami"
+        }
+    },
+
+    "germanic_up": {
+        "af": {
+            "family_path_j": "../adapters/mbert/germanic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/germanic_up_l/family/mlm",
+            "lang": "af_afribooms",
+            "lang_path_j": "../adapters/mbert/germanic_up_fgl-j/af",
+            "lang_path_nj": "../adapters/mbert/germanic_up_l/af/mlm",
+            "region_path": "../adapters/mbert/germanic_up_fgl-j/west"
+        },
+        "da": {
+            "family_path_j": "../adapters/mbert/germanic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/germanic_up_l/family/mlm",
+            "lang": "da_ddt",
+            "lang_path_j": "../adapters/mbert/germanic_up_fgl-j/da_1m",
+            "lang_path_nj": "../adapters/mbert/germanic_up_l/da_1m/mlm",
+            "region_path": "../adapters/mbert/germanic_up_fgl-j/north"
+        },
+        "de": {
+            "family_path_j": "../adapters/mbert/germanic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/germanic_up_l/family/mlm",
+            "lang": "de_gsd",
+            "lang_path_j": "../adapters/mbert/germanic_up_fgl-j/de_1m",
+            "lang_path_nj": "../adapters/mbert/germanic_up_l/de_1m/mlm",
+            "region_path": "../adapters/mbert/germanic_up_fgl-j/west"
+        },
+        "en": {
+            "family_path_j": "../adapters/mbert/germanic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/germanic_up_l/family/mlm",
+            "lang": "en_ewt",
+            "lang_path_j": "../adapters/mbert/germanic_up_fgl-j/en_1m",
+            "lang_path_nj": "../adapters/mbert/germanic_up_l/en_1m/mlm",
+            "region_path": "../adapters/mbert/germanic_up_fgl-j/west"
+        },
+        "fao": {
+            "family_path_j": "../adapters/mbert/germanic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/germanic_up_l/family/mlm",
+            "lang": "fo_oft",
+            "lang_path_j": "../adapters/mbert/germanic_up_fgl-j/fao_300k",
+            "lang_path_nj": "../adapters/mbert/germanic_up_l/fao_300k/mlm",
+            "region_path": "../adapters/mbert/germanic_up_fgl-j/north"
+        },
+        "gotica": {
+            "family_path_j": "../adapters/mbert/germanic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/germanic_up_l/family/mlm",
+            "lang": "got_proiel",
+            "lang_path_j": "../adapters/mbert/germanic_up_fgl-j/gotica",
+            "lang_path_nj": "../adapters/mbert/germanic_up_l/gotica/mlm",
+            "region_path": "../adapters/mbert/germanic_up_fgl-j/west"
+        },
+        "is": {
+            "family_path_j": "../adapters/mbert/germanic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/germanic_up_l/family/mlm",
+            "lang": "is_pud",
+            "lang_path_j": "../adapters/mbert/germanic_up_fgl-j/is_1m",
+            "lang_path_nj": "../adapters/mbert/germanic_up_l/is_1m/mlm",
+            "region_path": "../adapters/mbert/germanic_up_fgl-j/north"
+        },
+        "low": {
+            "family_path_j": "../adapters/mbert/germanic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/germanic_up_l/family/mlm",
+            "lang": "nds_lsdc",
+            "lang_path_j": "../adapters/mbert/germanic_up_fgl-j/low_saxon",
+            "lang_path_nj": "../adapters/mbert/germanic_up_l/low_saxon/mlm",
+            "region_path": "../adapters/mbert/germanic_up_fgl-j/west"
+        },
+        "nl": {
+            "family_path_j": "../adapters/mbert/germanic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/germanic_up_l/family/mlm",
+            "lang": "nl_alpino",
+            "lang_path_j": "../adapters/mbert/germanic_up_fgl-j/nl_1m",
+            "lang_path_nj": "../adapters/mbert/germanic_up_l/nl_1m/mlm",
+            "region_path": "../adapters/mbert/germanic_up_fgl-j/west"
+        },
+        "no": {
+            "family_path_j": "../adapters/mbert/germanic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/germanic_up_l/family/mlm",
+            "lang": "no_bokmaal",
+            "lang_path_j": "../adapters/mbert/germanic_up_fgl-j/no_1m",
+            "lang_path_nj": "../adapters/mbert/germanic_up_l/no_1m/mlm",
+            "region_path": "../adapters/mbert/germanic_up_fgl-j/north"
+        },
+        "sv": {
+            "family_path_j": "../adapters/mbert/germanic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/germanic_up_l/family/mlm",
+            "lang": "sv_pud",
+            "lang_path_j": "../adapters/mbert/germanic_up_fgl-j/sv_1m",
+            "lang_path_nj": "../adapters/mbert/germanic_up_l/sv_1m/mlm",
+            "region_path": "../adapters/mbert/germanic_up_fgl-j/north"
+        },
+        "swiss-german": {
+            "family_path_j": "../adapters/mbert/germanic_up_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/germanic_up_l/family/mlm",
+            "lang": "gsw_uzh",
+            "lang_path_j": "../adapters/mbert/germanic_up_fgl-j/swiss-german_100k",
+            "lang_path_nj": "../adapters/mbert/germanic_up_l/swiss-german_100k/mlm",
+            "region_path": "../adapters/mbert/germanic_up_fgl-j/west"
+        }
+        
+    },
+
+    "tupian": {
+        "aqz": {
+            "family_path_j": "../adapters/mbert/tupian_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/tupian_l/family/mlm",
+            "lang": "aqz_tudet",
+            "lang_path_j": "../adapters/mbert/tupian_fgl-j/gub",
+            "lang_path_nj": "../adapters/mbert/tupian_l/gub/mlm",
+            "region_path": "../adapters/mbert/tupian_fgl-j/tupi_guarani"
+        },
+        "arr": {
+            "family_path_j": "../adapters/mbert/tupian_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/tupian_l/family/mlm",
+            "lang": "arr_tudet",
+            "lang_path_j": "../adapters/mbert/tupian_fgl-j/gub",
+            "lang_path_nj": "../adapters/mbert/tupian_l/gub/mlm",
+            "region_path": "../adapters/mbert/tupian_fgl-j/tupi_guarani"
+        },
+        "gub": {
+            "family_path_j": "../adapters/mbert/tupian_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/tupian_l/family/mlm",
+            "lang": "gub_tudet",
+            "lang_path_j": "../adapters/mbert/tupian_fgl-j/gub",
+            "lang_path_nj": "../adapters/mbert/tupian_l/gub/mlm",
+            "region_path": "../adapters/mbert/tupian_fgl-j/tupi_guarani"
+        },
+        "gun": {
+            "family_path_j": "../adapters/mbert/tupian_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/tupian_l/family/mlm",
+            "lang": "gun_dooley",
+            "lang_path_j": "../adapters/mbert/tupian_fgl-j/gun",
+            "lang_path_nj": "../adapters/mbert/tupian_l/gun/mlm",
+            "region_path": "../adapters/mbert/tupian_fgl-j/tupi_guarani"
+        },
+        "mpu": {
+            "family_path_j": "../adapters/mbert/tupian_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/tupian_l/family/mlm",
+            "lang": "mpu_tudet",
+            "lang_path_j": "../adapters/mbert/tupian_fgl-j/gub",
+            "lang_path_nj": "../adapters/mbert/tupian_l/gub/mlm",
+            "region_path": "../adapters/mbert/tupian_fgl-j/tupi_guarani"
+        },
+        "myu": {
+            "family_path_j": "../adapters/mbert/tupian_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/tupian_l/family/mlm",
+            "lang": "myu_tudet",
+            "lang_path_j": "../adapters/mbert/tupian_fgl-j/myu",
+            "lang_path_nj": "../adapters/mbert/tupian_l/myu/mlm",
+            "region_path": "../adapters/mbert/tupian_fgl-j/munduruku"
+        },
+        "tpn": {
+            "family_path_j": "../adapters/mbert/tupian_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/tupian_l/family/mlm",
+            "lang": "tpn_tudet",
+            "lang_path_j": "../adapters/mbert/tupian_fgl-j/gub",
+            "lang_path_nj": "../adapters/mbert/tupian_l/gub/mlm",
+            "region_path": "../adapters/mbert/tupian_fgl-j/tupi_guarani"
+        },
+        "urb": {
+            "family_path_j": "../adapters/mbert/tupian_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/tupian_l/family/mlm",
+            "lang": "urb_tudet",
+            "lang_path_j": "../adapters/mbert/tupian_fgl-j/urb",
+            "lang_path_nj": "../adapters/mbert/tupian_l/urb/mlm",
+            "region_path": "../adapters/mbert/tupian_fgl-j/tupi_guarani"
+        },
+        "gn": {
+            "family_path_j": "../adapters/mbert/tupian_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/tupian_l/family/mlm",
+            "lang": "urb_tudet",
+            "lang_path_j": "../adapters/mbert/tupian_fgl-j/gn",
+            "lang_path_nj": "../adapters/mbert/tupian_l/gn/mlm",
+            "region_path": "../adapters/mbert/tupian_fgl-j/tupi_guarani"
+        }
+    },
+
+    "uto_aztecan": {
+        "crn": {
+            "family_path_j": "../adapters/mbert/uto_aztecan_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uto_aztecan_l/family/mlm",
+            "lang": "aqz_tudet",
+            "lang_path_j": "../adapters/mbert/uto_aztecan_fgl-j/crn",
+            "lang_path_nj": "../adapters/mbert/uto_aztecan_l/crn/mlm",
+            "region_path": "../adapters/mbert/uto_aztecan_fgl-j/corachol"
+        },
+        "hch": {
+            "family_path_j": "../adapters/mbert/uto_aztecan_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uto_aztecan_l/family/mlm",
+            "lang": "aqz_tudet",
+            "lang_path_j": "../adapters/mbert/uto_aztecan_fgl-j/hch",
+            "lang_path_nj": "../adapters/mbert/uto_aztecan_l/hch/mlm",
+            "region_path": "../adapters/mbert/uto_aztecan_fgl-j/corachol"
+        },
+        "mfy": {
+            "family_path_j": "../adapters/mbert/uto_aztecan_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uto_aztecan_l/family/mlm",
+            "lang": "aqz_tudet",
+            "lang_path_j": "../adapters/mbert/uto_aztecan_fgl-j/mfy",
+            "lang_path_nj": "../adapters/mbert/uto_aztecan_l/mfy/mlm",
+            "region_path": "../adapters/mbert/uto_aztecan_fgl-j/yaqui"
+        },
+        "nah": {
+            "family_path_j": "../adapters/mbert/uto_aztecan_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uto_aztecan_l/family/mlm",
+            "lang": "aqz_tudet",
+            "lang_path_j": "../adapters/mbert/uto_aztecan_fgl-j/nah",
+            "lang_path_nj": "../adapters/mbert/uto_aztecan_l/nah/mlm",
+            "region_path": "../adapters/mbert/uto_aztecan_fgl-j/aztecan"
+        },
+        "ntp": {
+            "family_path_j": "../adapters/mbert/uto_aztecan_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uto_aztecan_l/family/mlm",
+            "lang": "aqz_tudet",
+            "lang_path_j": "../adapters/mbert/uto_aztecan_fgl-j/ntp",
+            "lang_path_nj": "../adapters/mbert/uto_aztecan_l/ntp/mlm",
+            "region_path": "../adapters/mbert/uto_aztecan_fgl-j/tepiman"
+        },
+        "ood": {
+            "family_path_j": "../adapters/mbert/uto_aztecan_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uto_aztecan_l/family/mlm",
+            "lang": "aqz_tudet",
+            "lang_path_j": "../adapters/mbert/uto_aztecan_fgl-j/ood",
+            "lang_path_nj": "../adapters/mbert/uto_aztecan_l/ood/mlm",
+            "region_path": "../adapters/mbert/uto_aztecan_fgl-j/tepiman"
+        },
+        "stp": {
+            "family_path_j": "../adapters/mbert/uto_aztecan_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uto_aztecan_l/family/mlm",
+            "lang": "aqz_tudet",
+            "lang_path_j": "../adapters/mbert/uto_aztecan_fgl-j/stp",
+            "lang_path_nj": "../adapters/mbert/uto_aztecan_l/stp/mlm",
+            "region_path": "../adapters/mbert/uto_aztecan_fgl-j/tepiman"
+        },
+        "tar": {
+            "family_path_j": "../adapters/mbert/uto_aztecan_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uto_aztecan_l/family/mlm",
+            "lang": "aqz_tudet",
+            "lang_path_j": "../adapters/mbert/uto_aztecan_fgl-j/tar",
+            "lang_path_nj": "../adapters/mbert/uto_aztecan_l/tar/mlm",
+            "region_path": "../adapters/mbert/uto_aztecan_fgl-j/tarahumaran"
+        },
+        "yaq": {
+            "family_path_j": "../adapters/mbert/uto_aztecan_fgl-j/family",
+            "family_path_nj": "../adapters/mbert/uto_aztecan_l/family/mlm",
+            "lang": "aqz_tudet",
+            "lang_path_j": "../adapters/mbert/uto_aztecan_fgl-j/yaq",
+            "lang_path_nj": "../adapters/mbert/uto_aztecan_l/yaq/mlm",
+            "region_path": "../adapters/mbert/uto_aztecan_fgl-j/yaqui"
+        }
+    }
+}
