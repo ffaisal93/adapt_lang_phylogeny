@@ -1,0 +1,482 @@
+{
+    "br": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/celtic",
+        "family_path_nj": "",
+        "lang": "br_keb",
+        "lang_path_j": "../adapters/mbert/ie-j/br",
+        "lang_path_nj": "../adapters/mbert/ie-j/br",
+        "region_path": "../adapters/mbert/ie-j/celtic_west",
+        "task_path_j": "../experiments/mbert/udp/ga_idt_l/ud_ga_idt"
+    },
+    "cy": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/celtic",
+        "family_path_nj": "",
+        "lang": "cy_ccg",
+        "lang_path_j": "../adapters/mbert/ie-j/cy",
+        "lang_path_nj": "../adapters/mbert/ie-j/cy",
+        "region_path": "../adapters/mbert/ie-j/celtic_west",
+        "task_path_j": "../experiments/mbert/udp/ga_idt_l/ud_ga_idt"
+    },
+    "ga": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/celtic",
+        "family_path_nj": "",
+        "lang": "ga_idt",
+        "lang_path_j": "../adapters/mbert/ie-j/ga",
+        "lang_path_nj": "../adapters/mbert/ie-j/ga",
+        "region_path": "../adapters/mbert/ie-j/celtic_goidelic",
+        "task_path_j": "../experiments/mbert/udp/ga_idt_l/ud_ga_idt"
+    },
+    "gd": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/celtic",
+        "family_path_nj": "",
+        "lang": "gd_arcosg",
+        "lang_path_j": "../adapters/mbert/ie-j/gd",
+        "lang_path_nj": "../adapters/mbert/ie-j/gd",
+        "region_path": "../adapters/mbert/ie-j/celtic_goidelic",
+        "task_path_j": "../experiments/mbert/udp/ga_idt_l/ud_ga_idt"
+    },
+    "glv": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/celtic",
+        "family_path_nj": "",
+        "lang": "gv_cadhan",
+        "lang_path_j": "../adapters/mbert/ie-j/glv",
+        "lang_path_nj": "../adapters/mbert/ie-j/glv",
+        "region_path": "../adapters/mbert/ie-j/celtic_goidelic",
+        "task_path_j": "../experiments/mbert/udp/ga_idt_l/ud_ga_idt"
+    },
+    "af": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/germanic",
+        "family_path_nj": "",
+        "lang": "af_afribooms",
+        "lang_path_j": "../adapters/mbert/ie-j/af",
+        "lang_path_nj": "../adapters/mbert/ie-j/af",
+        "region_path": "../adapters/mbert/ie-j/germanic_west",
+        "task_path_j": "../experiments/mbert/udp/en_ewt_l/ud_en_ewt"
+    },
+    "da": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/germanic",
+        "family_path_nj": "",
+        "lang": "da_ddt",
+        "lang_path_j": "../adapters/mbert/ie-j/da",
+        "lang_path_nj": "../adapters/mbert/ie-j/da",
+        "region_path": "../adapters/mbert/ie-j/germanic_north",
+        "task_path_j": "../experiments/mbert/udp/en_ewt_l/ud_en_ewt"
+    },
+    "de": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/germanic",
+        "family_path_nj": "",
+        "lang": "de_gsd",
+        "lang_path_j": "../adapters/mbert/ie-j/de",
+        "lang_path_nj": "../adapters/mbert/ie-j/de",
+        "region_path": "../adapters/mbert/ie-j/germanic_west",
+        "task_path_j": "../experiments/mbert/udp/en_ewt_l/ud_en_ewt"
+    },
+    "en": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/germanic",
+        "family_path_nj": "",
+        "lang": "en_ewt",
+        "lang_path_j": "../adapters/mbert/ie-j/en",
+        "lang_path_nj": "../adapters/mbert/ie-j/en",
+        "region_path": "../adapters/mbert/ie-j/germanic_west",
+        "task_path_j": "../experiments/mbert/udp/en_ewt_l/ud_en_ewt"
+    },
+    "fao": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/germanic",
+        "family_path_nj": "",
+        "lang": "fo_oft",
+        "lang_path_j": "../adapters/mbert/ie-j/fao",
+        "lang_path_nj": "../adapters/mbert/ie-j/fao",
+        "region_path": "../adapters/mbert/ie-j/germanic_north",
+        "task_path_j": "../experiments/mbert/udp/en_ewt_l/ud_en_ewt"
+    },
+    "got": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/germanic",
+        "family_path_nj": "",
+        "lang": "got_proiel",
+        "lang_path_j": "../adapters/mbert/ie-j/got",
+        "lang_path_nj": "../adapters/mbert/ie-j/got",
+        "region_path": "../adapters/mbert/ie-j/germanic_west",
+        "task_path_j": "../experiments/mbert/udp/en_ewt_l/ud_en_ewt"
+    },
+    "gsw": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/germanic",
+        "family_path_nj": "",
+        "lang": "gsw_uzh",
+        "lang_path_j": "../adapters/mbert/ie-j/gsw",
+        "lang_path_nj": "../adapters/mbert/ie-j/gsw",
+        "region_path": "../adapters/mbert/ie-j/germanic_west",
+        "task_path_j": "../experiments/mbert/udp/en_ewt_l/ud_en_ewt"
+    },
+    "is": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/germanic",
+        "family_path_nj": "",
+        "lang": "is_pud",
+        "lang_path_j": "../adapters/mbert/ie-j/is",
+        "lang_path_nj": "../adapters/mbert/ie-j/is",
+        "region_path": "../adapters/mbert/ie-j/germanic_north",
+        "task_path_j": "../experiments/mbert/udp/en_ewt_l/ud_en_ewt"
+    },
+    "nds": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/germanic",
+        "family_path_nj": "",
+        "lang": "nds_lsdc",
+        "lang_path_j": "../adapters/mbert/ie-j/nds",
+        "lang_path_nj": "../adapters/mbert/ie-j/nds",
+        "region_path": "../adapters/mbert/ie-j/germanic_west",
+        "task_path_j": "../experiments/mbert/udp/en_ewt_l/ud_en_ewt"
+    },
+    "nl": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/germanic",
+        "family_path_nj": "",
+        "lang": "nl_alpino",
+        "lang_path_j": "../adapters/mbert/ie-j/nl",
+        "lang_path_nj": "../adapters/mbert/ie-j/nl",
+        "region_path": "../adapters/mbert/ie-j/germanic_west",
+        "task_path_j": "../experiments/mbert/udp/en_ewt_l/ud_en_ewt"
+    },
+    "no": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/germanic",
+        "family_path_nj": "",
+        "lang": "no_bokmaal",
+        "lang_path_j": "../adapters/mbert/ie-j/en",
+        "lang_path_nj": "../adapters/mbert/ie-j/en",
+        "region_path": "../adapters/mbert/ie-j/germanic_north",
+        "task_path_j": "../experiments/mbert/udp/en_ewt_l/ud_en_ewt"
+    },
+    "sv": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/germanic",
+        "family_path_nj": "",
+        "lang": "sv_pud",
+        "lang_path_j": "../adapters/mbert/ie-j/sv",
+        "lang_path_nj": "../adapters/mbert/ie-j/sv",
+        "region_path": "../adapters/mbert/ie-j/germanic_north",
+        "task_path_j": "../experiments/mbert/udp/en_ewt_l/ud_en_ewt"
+    },
+    "bho": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/indic",
+        "family_path_nj": "",
+        "lang": "bho_bhtb",
+        "lang_path_j": "../adapters/mbert/ie-j/bho",
+        "lang_path_nj": "../adapters/mbert/ie-j/bho",
+        "region_path": "../adapters/mbert/ie-j/indic_east",
+        "task_path_j": "../experiments/mbert/udp/mr_ufal_l/ud_mr_ufal"
+    },
+    "bn": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/indic",
+        "family_path_nj": "",
+        "lang": "bn_bru",
+        "lang_path_j": "../adapters/mbert/ie-j/bn",
+        "lang_path_nj": "../adapters/mbert/ie-j/bn",
+        "region_path": "../adapters/mbert/ie-j/indic_east",
+        "task_path_j": "../experiments/mbert/udp/mr_ufal_l/ud_mr_ufal"
+    },
+    "hi": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/indic",
+        "family_path_nj": "",
+        "lang": "hi_hdtb",
+        "lang_path_j": "../adapters/mbert/ie-j/hi",
+        "lang_path_nj": "../adapters/mbert/ie-j/hi",
+        "region_path": "../adapters/mbert/ie-j/indic_central",
+        "task_path_j": "../experiments/mbert/udp/mr_ufal_l/ud_mr_ufal"
+    },
+    "mr": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/indic",
+        "family_path_nj": "",
+        "lang": "mr_ufal",
+        "lang_path_j": "../adapters/mbert/ie-j/mr",
+        "lang_path_nj": "../adapters/mbert/ie-j/mr",
+        "region_path": "../adapters/mbert/ie-j/indic_south",
+        "task_path_j": "../experiments/mbert/udp/mr_ufal_l/ud_mr_ufal"
+    },
+    "sa": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/indic",
+        "family_path_nj": "",
+        "lang": "sa_vedic",
+        "lang_path_j": "../adapters/mbert/ie-j/sa",
+        "lang_path_nj": "../adapters/mbert/ie-j/sa",
+        "region_path": "../adapters/mbert/ie-j/indic_sanskrit",
+        "task_path_j": "../experiments/mbert/udp/mr_ufal_l/ud_mr_ufal"
+    },
+    "ur": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/indic",
+        "family_path_nj": "",
+        "lang": "ur_udtb",
+        "lang_path_j": "../adapters/mbert/ie-j/ur",
+        "lang_path_nj": "../adapters/mbert/ie-j/ur",
+        "region_path": "../adapters/mbert/ie-j/indic_central",
+        "task_path_j": "../experiments/mbert/udp/mr_ufal_l/ud_mr_ufal"
+    },
+    "xnr": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/indic",
+        "family_path_nj": "",
+        "lang": "xnr_kdtb",
+        "lang_path_j": "../adapters/mbert/ie-j/xnr",
+        "lang_path_nj": "../adapters/mbert/ie-j/xnr",
+        "region_path": "../adapters/mbert/ie-j/indic_north",
+        "task_path_j": "../experiments/mbert/udp/mr_ufal_l/ud_mr_ufal"
+    },
+    "fa": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/iranian",
+        "family_path_nj": "",
+        "lang": "fa_perdt",
+        "lang_path_j": "../adapters/mbert/ie-j/fa",
+        "lang_path_nj": "../adapters/mbert/ie-j/fa",
+        "region_path": "../adapters/mbert/ie-j/iranian_west",
+        "task_path_j": "../experiments/mbert/udp/fa_perdt_l/ud_fa_perdt"
+    },
+    "kmr": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/iranian",
+        "family_path_nj": "",
+        "lang": "kmr_mg",
+        "lang_path_j": "../adapters/mbert/ie-j/kmr",
+        "lang_path_nj": "../adapters/mbert/ie-j/kmr",
+        "region_path": "../adapters/mbert/ie-j/iranian_west",
+        "task_path_j": "../experiments/mbert/udp/fa_perdt_l/ud_fa_perdt"
+    },
+    "ca": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/romance",
+        "family_path_nj": "",
+        "lang": "ca_ancora",
+        "lang_path_j": "../adapters/mbert/ie-j/ca",
+        "lang_path_nj": "../adapters/mbert/ie-j/ca",
+        "region_path": "../adapters/mbert/ie-j/romance_west",
+        "task_path_j": "../experiments/mbert/udp/es_ancora_l/ud_es_ancora"
+    },
+    "es": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/romance",
+        "family_path_nj": "",
+        "lang": "es_ancora",
+        "lang_path_j": "../adapters/mbert/ie-j/es",
+        "lang_path_nj": "../adapters/mbert/ie-j/es",
+        "region_path": "../adapters/mbert/ie-j/romance_west",
+        "task_path_j": "../experiments/mbert/udp/es_ancora_l/ud_es_ancora"
+    },
+    "fr": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/romance",
+        "family_path_nj": "",
+        "lang": "fr_gsd",
+        "lang_path_j": "../adapters/mbert/ie-j/fr",
+        "lang_path_nj": "../adapters/mbert/ie-j/fr",
+        "region_path": "../adapters/mbert/ie-j/romance_west",
+        "task_path_j": "../experiments/mbert/udp/es_ancora_l/ud_es_ancora"
+    },
+    "fro": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/romance",
+        "family_path_nj": "",
+        "lang": "fro_srcmf",
+        "lang_path_j": "../adapters/mbert/ie-j/fro",
+        "lang_path_nj": "../adapters/mbert/ie-j/fro",
+        "region_path": "../adapters/mbert/ie-j/romance_west",
+        "task_path_j": "../experiments/mbert/udp/es_ancora_l/ud_es_ancora"
+    },
+    "gl": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/romance",
+        "family_path_nj": "",
+        "lang": "gl_ctg",
+        "lang_path_j": "../adapters/mbert/ie-j/gl",
+        "lang_path_nj": "../adapters/mbert/ie-j/gl",
+        "region_path": "../adapters/mbert/ie-j/romance_west",
+        "task_path_j": "../experiments/mbert/udp/es_ancora_l/ud_es_ancora"
+    },
+    "it": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/romance",
+        "family_path_nj": "",
+        "lang": "it_vit",
+        "lang_path_j": "../adapters/mbert/ie-j/it",
+        "lang_path_nj": "../adapters/mbert/ie-j/it",
+        "region_path": "../adapters/mbert/ie-j/romance_italo_west",
+        "task_path_j": "../experiments/mbert/udp/es_ancora_l/ud_es_ancora"
+    },
+    "lig": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/romance",
+        "family_path_nj": "",
+        "lang": "lij_glt",
+        "lang_path_j": "../adapters/mbert/ie-j/lig",
+        "lang_path_nj": "../adapters/mbert/ie-j/lig",
+        "region_path": "../adapters/mbert/ie-j/romance_west",
+        "task_path_j": "../experiments/mbert/udp/es_ancora_l/ud_es_ancora"
+    },
+    "nap": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/romance",
+        "family_path_nj": "",
+        "lang": "nap_rb",
+        "lang_path_j": "../adapters/mbert/ie-j/nap",
+        "lang_path_nj": "../adapters/mbert/ie-j/nap",
+        "region_path": "../adapters/mbert/ie-j/romance_italo_dalmatian",
+        "task_path_j": "../experiments/mbert/udp/es_ancora_l/ud_es_ancora"
+    },
+    "pt": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/romance",
+        "family_path_nj": "",
+        "lang": "pt_bosque",
+        "lang_path_j": "../adapters/mbert/ie-j/pt",
+        "lang_path_nj": "../adapters/mbert/ie-j/pt",
+        "region_path": "../adapters/mbert/ie-j/romance_west",
+        "task_path_j": "../experiments/mbert/udp/es_ancora_l/ud_es_ancora"
+    },
+    "ro": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/romance",
+        "family_path_nj": "",
+        "lang": "ro_rrt",
+        "lang_path_j": "../adapters/mbert/ie-j/ro",
+        "lang_path_nj": "../adapters/mbert/ie-j/ro",
+        "region_path": "../adapters/mbert/ie-j/romance_east",
+        "task_path_j": "../experiments/mbert/udp/es_ancora_l/ud_es_ancora"
+    },
+    "be": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "be_hse",
+        "lang_path_j": "../adapters/mbert/ie-j/be",
+        "lang_path_nj": "../adapters/mbert/ie-j/be",
+        "region_path": "../adapters/mbert/ie-j/slavic_east",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "bg": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "bg_btb",
+        "lang_path_j": "../adapters/mbert/ie-j/bg",
+        "lang_path_nj": "../adapters/mbert/ie-j/bg",
+        "region_path": "../adapters/mbert/ie-j/slavic_south",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "chu": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "cu_proiel",
+        "lang_path_j": "../adapters/mbert/ie-j/chu",
+        "lang_path_nj": "../adapters/mbert/ie-j/chu",
+        "region_path": "../adapters/mbert/ie-j/slavic_south",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "cs": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "cs_pdt",
+        "lang_path_j": "../adapters/mbert/ie-j/cs",
+        "lang_path_nj": "../adapters/mbert/ie-j/cs",
+        "region_path": "../adapters/mbert/ie-j/slavic_west",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "hr": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "hr_set",
+        "lang_path_j": "../adapters/mbert/ie-j/hr",
+        "lang_path_nj": "../adapters/mbert/ie-j/hr",
+        "region_path": "../adapters/mbert/ie-j/slavic_south",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "orv": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "orv_rnc",
+        "lang_path_j": "../adapters/mbert/ie-j/orv",
+        "lang_path_nj": "../adapters/mbert/ie-j/orv",
+        "region_path": "../adapters/mbert/ie-j/slavic_east",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "pl": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "pl_pdb",
+        "lang_path_j": "../adapters/mbert/ie-j/pl",
+        "lang_path_nj": "../adapters/mbert/ie-j/pl",
+        "region_path": "../adapters/mbert/ie-j/slavic_west",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "qpm": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "qpm_philotis",
+        "lang_path_j": "../adapters/mbert/ie-j/qpm",
+        "lang_path_nj": "../adapters/mbert/ie-j/qpm",
+        "region_path": "../adapters/mbert/ie-j/slavic_south",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "ru": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "ru_taiga",
+        "lang_path_j": "../adapters/mbert/ie-j/ru",
+        "lang_path_nj": "../adapters/mbert/ie-j/ru",
+        "region_path": "../adapters/mbert/ie-j/slavic_east",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "sk": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "sk_snk",
+        "lang_path_j": "../adapters/mbert/ie-j/sk",
+        "lang_path_nj": "../adapters/mbert/ie-j/sk",
+        "region_path": "../adapters/mbert/ie-j/slavic_west",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "sl": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "sl_ssj",
+        "lang_path_j": "../adapters/mbert/ie-j/sl",
+        "lang_path_nj": "../adapters/mbert/ie-j/sl",
+        "region_path": "../adapters/mbert/ie-j/slavic_south",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "sr": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "sr_set",
+        "lang_path_j": "../adapters/mbert/ie-j/sr",
+        "lang_path_nj": "../adapters/mbert/ie-j/sr",
+        "region_path": "../adapters/mbert/ie-j/slavic_south",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    }
+}

@@ -1,0 +1,53 @@
+{
+    
+    "qpm": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "qpm_philotis",
+        "lang_path_j": "../adapters/mbert/ie-j/qpm",
+        "lang_path_nj": "../adapters/mbert/ie-j/qpm",
+        "region_path": "../adapters/mbert/ie-j/slavic_south",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "ru": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "ru_taiga",
+        "lang_path_j": "../adapters/mbert/ie-j/ru",
+        "lang_path_nj": "../adapters/mbert/ie-j/ru",
+        "region_path": "../adapters/mbert/ie-j/slavic_east",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "sk": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "sk_snk",
+        "lang_path_j": "../adapters/mbert/ie-j/sk",
+        "lang_path_nj": "../adapters/mbert/ie-j/sk",
+        "region_path": "../adapters/mbert/ie-j/slavic_west",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "sl": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "sl_ssj",
+        "lang_path_j": "../adapters/mbert/ie-j/sl",
+        "lang_path_nj": "../adapters/mbert/ie-j/sl",
+        "region_path": "../adapters/mbert/ie-j/slavic_south",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    },
+    "sr": {
+        "root": "../adapters/mbert/ie-j/family",
+        "family_path_j": "../adapters/mbert/ie-j/slavic",
+        "family_path_nj": "",
+        "lang": "sr_set",
+        "lang_path_j": "../adapters/mbert/ie-j/sr",
+        "lang_path_nj": "../adapters/mbert/ie-j/sr",
+        "region_path": "../adapters/mbert/ie-j/slavic_south",
+        "task_path_j": "../experiments/mbert/udp/ru_taiga_l/ud_ru_taiga"
+    }
+}

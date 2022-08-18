@@ -278,6 +278,7 @@ class Trainer:
         eval_dataset: Optional[Dataset] = None,
         lang_keys: Optional[dict] = None,
         reg_keys: Optional[dict] = None,
+        fa_keys: Optional[dict] = None,
         tokenizer: Optional[PreTrainedTokenizerBase] = None,
         model_init: Callable[[], PreTrainedModel] = None,
         compute_metrics: Optional[Callable[[EvalPrediction], Dict]] = None,
@@ -297,6 +298,7 @@ class Trainer:
         lang_keys={v:k for k,v in lang_keys.items()}
         self.lang_keys = lang_keys
         self.reg_keys = reg_keys
+        self.fa_keys = fa_keys
 
         # memory metrics - must set up as early as possible
         self._memory_tracker = TrainerMemoryTracker(self.args.skip_memory_metrics)
@@ -544,6 +546,8 @@ class Trainer:
             ignored_columns.remove('lang')
         if 'reg' in ignored_columns:
             ignored_columns.remove('reg')
+        if 'fa' in ignored_columns:
+            ignored_columns.remove('fa')
         if len(ignored_columns) > 0:
             dset_description = "" if description is None else f"in the {description} set "
             logger.info(
@@ -1895,6 +1899,9 @@ class Trainer:
         if len(self.reg_keys)!=0:
             reg_a = self.reg_keys[int(inputs['reg'][0])]
             adapter_name= ['family',reg_a,lang_a]
+        if len(self.fa_keys)!=0:
+            fa_a = self.fa_keys[int(inputs['fa'][0])]
+            adapter_name= ['family',fa_a,reg_a,lang_a]
         else:
             adapter_name= ['family',lang_a]
         # del_keys = ['lang','reg']

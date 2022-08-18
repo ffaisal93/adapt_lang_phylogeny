@@ -1,4 +1,6 @@
 deactivate
+rm -rf adapter-transformers
+rm -rf venv vnv/vnv-org
 module load python/3.8.6-ff
 python -m venv vnv/vnv-org
 echo "install adapter-transformers orginal"

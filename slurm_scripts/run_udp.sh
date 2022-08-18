@@ -30,7 +30,7 @@ task_name=${task_name:-en_ewt}
 task_path=${task_path:-en_ewt}
 task_path_j=${task_path_j:-en_ewt}
 cache_dir=${cache_dir:-/scratch/ffaisal/hug_cache}
-num_epoch=${num_epoch:-3}
+num_epoch=${num_epoch:-6}
 
 
 while [ $# -gt 0 ]; do
@@ -117,9 +117,9 @@ elif [ "$train_test" = "train_lt" ]; then
         --cache_dir ${cache_dir} \
         --overwrite_output_dir
 
-elif [ "$train_test" = "predict_all" ]; then
+elif [ "$train_test" = "predict_all_ie" ]; then
     # export TASK_NAME="en_ewt"
-    python ../examples/dependency-parsing/run_udp_america.py \
+    python ../examples/dependency-parsing/run_udp_ie.py \
         --model_name_or_path ${base_dir} \
         --task_name ${task_name} \
         --task_path ${task_path} \

@@ -21,6 +21,10 @@ Universal Dependencies is a project that seeks to develop cross-linguistically c
 """
 
 _NAMES = [
+    "qpm_philotis",
+    "nap_rb",
+    "lij_glt",
+    "xnr_kdtb",
     "af_afribooms",
     "nds_lsdc",
     "akk_pisandub",
@@ -37,6 +41,7 @@ _NAMES = [
     "hy_armtdp",
     "aii_as",
     "bm_crb",
+    "bn_bru",
     "eu_bdt",
     "be_hse",
     "bho_bhtb",
@@ -212,11 +217,16 @@ _NAMES = [
 ]
 
 _DESCRIPTIONS = {
+    "qpm_philotis":"xx",
+    "nap_rb":"xx",
+    "lij_glt":"xx",
+    "xnr_kdtb":"xx",
     "mpu_tudet":"xx",
     "arr_tudet":"xx",
     "urb_tudet":"xx",
     "gub_tudet":"xx",
     "nds_lsdc":"xx",
+    "bn_bru":"bengali",
     "af_afribooms": "UD Afrikaans-AfriBooms is a conversion of the AfriBooms Dependency Treebank, originally annotated with a simplified PoS set and dependency relations according to a subset of the Stanford tag set. The corpus consists of public government documents. The dataset was proposed in 'AfriBooms: An Online Treebank for Afrikaans' by Augustinus et al. (2016); https://www.aclweb.org/anthology/L16-1107.pdf.",
     "akk_pisandub": "A small set of sentences from Babylonian royal inscriptions.",
     "akk_riao": "UD_Akkadian-RIAO is a small treebank which consists of 22 277 words and 1845 sentences. This represents an intact subset of a total of 2211 sentences from the early Neo-Assyrian royal inscriptions  of the tenth and ninth centuries BCE. These royal inscriptions were extracted from Oracc (Open Richly Annotated Cuneiform Corpus; http://oracc.museum.upenn.edu/riao/), where all Neo-Assyrian royal inscriptions are lemmatized word-for-word. The language of the corpus is Standard Babylonian, with occasional Assyrianisms, whereas “Akkadian” is the umbrella term for both Assyrian and Babylonian. The treebank was manually annotated following the UD annotation guidelines.",
@@ -403,6 +413,21 @@ _DESCRIPTIONS = {
 }
 _PREFIX = "https://raw.githubusercontent.com/UniversalDependencies/"
 _UD_DATASETS = {
+    "qpm_philotis":{
+        "test":"UD_Pomak-Philotis/r2.10/qpm_philotis-ud-test.conllu",
+    },
+    "nap_rb":{
+        "test":"UD_Neapolitan-RB/r2.9/nap_rb-ud-test.conllu",
+    },
+    "lij_glt":{
+        "test":"UD_Ligurian-GLT/r2.9/lij_glt-ud-test.conllu",
+    },
+    "xnr_kdtb":{
+        "test":"UD_Kangri-KDTB/r2.9/xnr_kdtb-ud-test.conllu",
+    },
+    "bn_bru":{
+        "test":"UD_Bengali-BRU/r2.9/bn_bru-ud-test.conllu",
+    },
     "mpu_tudet":{
         "test":"UD_Makurap-TuDeT/r2.9/mpu_tudet-ud-test.conllu",
     },

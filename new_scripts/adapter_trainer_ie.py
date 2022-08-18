@@ -49,6 +49,7 @@ class AdapterTrainer(Trainer):
         adapter_names: Optional[List[List[str]]] = None,
         lang_keys: Optional[dict] = None,
         reg_keys: Optional[dict] = None,
+        fa_keys: Optional[dict] = None,
         optimizers: Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler.LambdaLR] = (None, None),
     ):
         super().__init__(
@@ -59,6 +60,7 @@ class AdapterTrainer(Trainer):
             eval_dataset,
             lang_keys,
             reg_keys,
+            fa_keys,
             tokenizer=tokenizer,
             model_init=model_init,
             compute_metrics=compute_metrics,
@@ -230,6 +232,8 @@ class AdapterTrainer(Trainer):
             ignored_columns.remove('lang')
         if 'reg' in ignored_columns:
             ignored_columns.remove('reg')
+        if 'fa' in ignored_columns:
+            ignored_columns.remove('fa')
         if len(ignored_columns) > 0:
             dset_description = "" if description is None else f"in the {description} set "
             logger.info(

@@ -1,0 +1,62 @@
+{
+    "celtic": {
+        "br": "west",
+        "cy": "west",
+        "ga": "goidelic",
+        "gd": "goidelic",
+        "glv": "goidelic"
+    },
+    "germanic": {
+        "af": "west",
+        "da": "north",
+        "de": "west",
+        "en": "west",
+        "fao": "north",
+        "got": "west",
+        "gsw": "west",
+        "is": "north",
+        "nds": "west",
+        "nl": "west",
+        "no":"north",
+        "sv": "north"
+    },
+    "indic": {
+        "bho": "east",
+        "bn": "east",
+        "hi": "central",
+        "mr": "south",
+        "sa": "sanskrit",
+        "ur": "central",
+        "xnr": "north"
+    },
+    "iranian": {
+        "fa": "west",
+        "kmr": "west"
+    },
+    "romance": {
+        "ca": "west",
+        "es": "west",
+        "fr": "west",
+        "fro": "west",
+        "gl": "west",
+        "it": "italo_west",
+        "lig": "west",
+        "nap": "italo_dalmatian",
+        "pt": "west",
+        "ro": "east"
+    },
+    "slavic": {
+        "be": "east",
+        "bg": "south",
+        "chu": "south",
+        "cs": "west",
+        "hr": "south",
+        "orv": "east",
+        "pl": "west",
+        "qpm": "south",
+        "ru": "east",
+        "sk": "west",
+        "sl": "south",
+        "sr": "south"
+    }
+}

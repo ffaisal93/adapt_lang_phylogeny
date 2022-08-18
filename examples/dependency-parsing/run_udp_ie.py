@@ -449,7 +449,7 @@ def main():
         return dataset
 
     def  do_prediction_all(text,adapter_list):
-        logger.info('\n\n\n{}'.format(text))
+        logger.info('\n\n\n{}-{}'.format(text, adapter_list))
         model.set_active_adapters(adapter_list)
         # else:
         #     model.set_active_adapters(ac.Stack(adapter_list))
@@ -475,27 +475,30 @@ def main():
         import json
         with open(model_args.lang_config) as json_file:
             ad_data = json.load(json_file)
-        adapter_info = ad_data[data_args.family_name]
+        # adapter_info = ad_data[data_args.family_name]
+        adapter_info = ad_data
         
         output_test_results_file = os.path.join(training_args.output_dir, "test_results.txt")
         if trainer.is_world_process_zero():
             writer = open(output_test_results_file, "w")
 
 
-        task_l_path = model_args.task_path
-        logger.info('task_path:{}'.format(task_l_path))
-        task_adapter_name_l=load_tadapters(task_l_path, 'l')
-
-        task_fgl_path = model_args.task_path_j
-        logger.info('task_path:{}'.format(task_fgl_path))
-        task_adapter_name_fgl=load_tadapters(task_fgl_path, 'fgl')
-
         for lang in adapter_info:
             print(lang)
+            logger.info('lang:{}'.format(lang))
             predict_dataset = get_dataset(adapter_info[lang]['lang'])
+
+            task_l_path = adapter_info[lang]['task_path_j']
+            logger.info('task_path:{}'.format(task_l_path))
+            task_adapter_name_l=load_tadapters(task_l_path, 'l')
+
+            task_fgl_path = adapter_info[lang]['task_path_j']
+            logger.info('task_path:{}'.format(task_fgl_path))
+            task_adapter_name_fgl=load_tadapters(task_fgl_path, 'fgl')
 
             do_prediction_all('[task]',[task_adapter_name_l])
             lad = adapter_info[lang]['lang_path_nj']
+            logger.info('lang_path_nj:{}'.format(lad))
             lang_adapter_name=load_ladapters(lad,lang) 
             do_prediction_all('[task+lang]',[lang_adapter_name, task_adapter_name_l])
             model.delete_adapter(lang_adapter_name)
@@ -504,18 +507,26 @@ def main():
             lad = adapter_info[lang]['lang_path_j']
             lang_adapter_name=load_ladapters(lad,lang)
             rad = adapter_info[lang]['region_path']
+            logger.info('region_path_nj:{}'.format(rad))
             region_adapter_name=load_fadapters(rad,'region') 
             fad = adapter_info[lang]['family_path_j']
+            logger.info('family_path_nj:{}'.format(fad))
             family_adapter_name=load_fadapters(fad, 'family')
-            do_prediction_all('[task+lang->joint]',[lang_adapter_name, task_adapter_name_fgl])
+            iad = adapter_info[lang]['root']
+            logger.info('root_path_nj:{}'.format(iad))
+            ie_adapter_name=load_fadapters(iad, 'root')
+            # do_prediction_all('[task+lang->joint]',[lang_adapter_name, task_adapter_name_fgl])
             do_prediction_all('[task+lang+family->joint]',[family_adapter_name,lang_adapter_name, task_adapter_name_fgl])
             do_prediction_all('[task+lang+region+family->joint]',[family_adapter_name,region_adapter_name,
+                                               lang_adapter_name, task_adapter_name_fgl])
+            do_prediction_all('[task+lang+region+family+root->joint]',[ie_adapter_name,family_adapter_name,region_adapter_name,
                                                lang_adapter_name, task_adapter_name_fgl])
             model.delete_adapter(lang_adapter_name)
             model.delete_adapter(region_adapter_name)
             model.delete_adapter(family_adapter_name)
-        model.delete_adapter(task_adapter_name_l)
-        model.delete_adapter(task_adapter_name_fgl)
+            model.delete_adapter(ie_adapter_name)
+            model.delete_adapter(task_adapter_name_l)
+            model.delete_adapter(task_adapter_name_fgl)
 
         
  

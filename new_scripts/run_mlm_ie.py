@@ -25,6 +25,7 @@ import logging
 import math
 import os
 import sys
+import json
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -90,6 +91,12 @@ class ModelArguments:
     config_name: Optional[str] = field(
         default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
     )
+    lang_config: Optional[str] = field(
+        default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
+    )
+    lang_family: Optional[str] = field(
+        default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
+    )
     tokenizer_name: Optional[str] = field(
         default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name"}
     )
@@ -104,12 +111,6 @@ class ModelArguments:
     model_revision: str = field(
         default="main",
         metadata={"help": "The specific model version to use (can be a branch name, tag name or commit id)."},
-    )
-    lang_config: Optional[str] = field(
-        default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
-    )
-    lang_family: Optional[str] = field(
-        default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
     )
     use_auth_token: bool = field(
         default=False,
@@ -198,7 +199,7 @@ class DataTrainingArguments:
     )
 
     def __post_init__(self):
-        if self.dataset_name is None and self.train_file is None and self.validation_file is None:
+        if self.dataset_name is None and self.train_file is None and self.train_files is None and self.validation_file is None:
             raise ValueError("Need either a dataset name or a training/validation file.")
         else:
             if self.train_file is not None:
@@ -294,60 +295,70 @@ def main():
                 cache_dir=model_args.cache_dir,
             )
     else:
-        #west:0, north:1
-        reg_dict = {
-                    'nl':0,
-                    'af':0,
-                    'en':0,
-                    'low_saxon':0,
-                    'de':0,
-                    'gotica':0,
-                    'swiss-german':0,
-                    'is':1,
-                    'fao':1,
-                    'no':1,
-                    'sv':1,
-                    'da':1
 
-                }
+        with open(model_args.lang_config) as json_file:
+            lang_data = json.load(json_file)
         all_data={}
         lang_key={}
+        reg_key={}
+        reg_key_inv={}
+        reg_dict={}
+        reg_count=0
+        fa_key={}
+        fa_key_inv={}
+        fa_dict={}
+        for j,la_f in enumerate(lang_data):
+            fa_key[j]=la_f
+            fa_key_inv[la_f]=j
+            for i,val in enumerate(set(lang_data[la_f].values())):
+                    reg_key[reg_count]=la_f+'_'+val
+                    reg_key_inv[la_f+'_'+val]=reg_count
+                    reg_count+=1
+        reg_count=0
+        for j,la_f in enumerate(lang_data):
+            for i,val in lang_data[la_f].items():
+                fa_dict[i]=fa_key_inv[la_f]
+                reg_dict[i]=reg_key_inv[la_f+'_'+val]
+                reg_count+=1
+
         count=0
 
-        for x in os.listdir(data_args.train_files):
-            if x!='.DS_Store' and x!='readme.md':
-                fname = x.split('.txt')[0]
-                data_args.train_file = data_args.train_files+'/'+x
-                logger.info(fname)
-                data_files = {}
-                if data_args.train_file is not None:
-                    data_files["train"] = data_args.train_file
-                    extension = data_args.train_file.split(".")[-1]
-                if data_args.validation_file is not None:
-                    data_files["validation"] = data_args.validation_file
-                    extension = data_args.validation_file.split(".")[-1]
-                if extension == "txt":
-                    extension = "text"
-                raw_datasets = load_dataset(extension, data_files=data_files, cache_dir=model_args.cache_dir)
+        for x1 in os.listdir(data_args.train_files):
+            if x1!='.DS_Store' and x1!='._.DS_Store' and x1!='readme.md' and x1!='family.txt' and x1.startswith('._')==False:
+                for x in os.listdir(os.path.join(data_args.train_files,x1)):
+                    if x!='.DS_Store' and x!='readme.md' and x!='family.txt' and x.startswith('._')==False:
+                        fname = x.split('.txt')[0]
+                        data_args.train_file = data_args.train_files+'/'+x1+'/'+x
+                        logger.info(fname)
+                        data_files = {}
+                        if data_args.train_file is not None:
+                            data_files["train"] = data_args.train_file
+                            extension = data_args.train_file.split(".")[-1]
+                        if data_args.validation_file is not None:
+                            data_files["validation"] = data_args.validation_file
+                            extension = data_args.validation_file.split(".")[-1]
+                        if extension == "txt":
+                            extension = "text"
+                        raw_datasets = load_dataset(extension, data_files=data_files, cache_dir=model_args.cache_dir)
 
-                # If no validation data is there, validation_split_percentage will be used to divide the dataset.
-                if "validation" not in raw_datasets.keys():
-                    raw_datasets["validation"] = load_dataset(
-                        extension,
-                        data_files=data_files,
-                        split=f"train[:{data_args.validation_split_percentage}%]",
-                        cache_dir=model_args.cache_dir,
-                    )
-                    raw_datasets["train"] = load_dataset(
-                        extension,
-                        data_files=data_files,
-                        split=f"train[{data_args.validation_split_percentage}%:]",
-                        cache_dir=model_args.cache_dir,
-                    )
-                
-                all_data[fname]=raw_datasets
-                lang_key[fname]=count
-                count+=1
+                        # If no validation data is there, validation_split_percentage will be used to divide the dataset.
+                        if "validation" not in raw_datasets.keys():
+                            raw_datasets["validation"] = load_dataset(
+                                extension,
+                                data_files=data_files,
+                                split=f"train[:{data_args.validation_split_percentage}%]",
+                                cache_dir=model_args.cache_dir,
+                            )
+                            raw_datasets["train"] = load_dataset(
+                                extension,
+                                data_files=data_files,
+                                split=f"train[{data_args.validation_split_percentage}%:]",
+                                cache_dir=model_args.cache_dir,
+                            )
+                        
+                        all_data[fname]=raw_datasets
+                        lang_key[fname]=count
+                        count+=1
 
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
@@ -424,8 +435,10 @@ def main():
                 )
             # otherwise, add a fresh adapter
             else:
-                all_task = list(lang_key.keys())
-                all_task.append('family')
+                all_task=['family']
+                all_task.extend(fa_key.values())
+                all_task.extend(reg_key.values())
+                all_task.extend(list(lang_key.keys()))
                 for x in all_task:
                     model.add_adapter(x, config=adapter_config)
         # optionally load a pre-trained language adapter
@@ -444,13 +457,22 @@ def main():
             )
         else:
             lang_adapter_name = None
+        count=0
+        for name, param in model.named_parameters():
+            if param.requires_grad == True and 'adapter' in name and 'weight' in name:
+                # print(count,name,str(tuple(param.size())) )
+                count+=1
         # Freeze all model weights except of those of this adapter
         model.train_adapter(all_task)
         # Set the adapters to be used in every forward pass
+        # if lang_adapter_name:
+        #     model.set_active_adapters(ac.Stack(all_task[-1], ac.Parallel(all_task[:-1])))
+        # else:
+        #     model.set_active_adapters(ac.Stack(all_task[-1], ac.Parallel(all_task[:-1])))
         if lang_adapter_name:
-            model.set_active_adapters(ac.Stack(all_task[-1], ac.Parallel(all_task[:-1])))
+            model.set_active_adapters(all_task)
         else:
-            model.set_active_adapters(ac.Stack(all_task[-1], ac.Parallel(all_task[:-1])))
+            model.set_active_adapters(all_task)
             # model.set_active_adapters(task_name)
     else:
         if adapter_args.load_adapter or adapter_args.load_lang_adapter:
@@ -582,7 +604,11 @@ def main():
             if data_args.max_train_samples is not None:
                 train_dataset = train_dataset.select(range(data_args.max_train_samples))
             lang_column = [lang_key[x]]*train_dataset.num_rows
+            reg_column = [reg_dict[x]]*train_dataset.num_rows
+            fa_column = [fa_dict[x]]*train_dataset.num_rows
             train_dataset = train_dataset.add_column("lang", lang_column)
+            train_dataset = train_dataset.add_column("reg", reg_column)
+            train_dataset = train_dataset.add_column("fa", fa_column)
             all_train_datasets.append(train_dataset)
         train_dataset = concatenate_datasets(all_train_datasets)
 
@@ -614,6 +640,8 @@ def main():
         eval_dataset=eval_dataset if training_args.do_eval else None,
         tokenizer=tokenizer,
         lang_keys=lang_key,
+        reg_keys=reg_key,
+        fa_keys=fa_key,
         data_collator=data_collator
     )
 
