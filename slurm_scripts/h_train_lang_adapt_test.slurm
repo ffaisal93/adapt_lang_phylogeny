@@ -2,8 +2,8 @@
 #SBATCH --partition=gpuq                    # the DGX only belongs in the 'gpu'  partition
 #SBATCH --qos=gpu                           # need to select 'gpu' QoS
 #SBATCH --job-name=python-gpu
-#SBATCH --output=../tr_output/xlmr_ger.out
-#SBATCH --error=../tr_output/xlmr_ger.err
+#SBATCH --output=../tr_output/random_mbert.out
+#SBATCH --error=../tr_output/random_mbert.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1                 # up to 128; 
 #SBATCH --gres=gpu:A100.40gb:3              # up to 8; only request what you need
@@ -23,7 +23,7 @@ nvidia-smi
 
 
 
-source ../../vnv/bin/activate
+source ../vnv/vnv-joint/bin/activate
 
 
 
@@ -35,13 +35,13 @@ source ../../vnv/bin/activate
 # 	--out_dir ../adapters/xlmr/germanic_up \
 # 	--lang_family germanic 
 
-./run_mlm_all.sh \
-	--train_test train_joint \
-	--base_model mbert \
-	--base_dir /scratch/ffaisal/base_models/mbert \
-	--data_dir ../data/uto_aztecan \
-	--out_dir ../adapters/mbert/uto_aztecan_fgl-j \
-	--lang_family uto_aztecan 
+# ./run_mlm_all.sh \
+# 	--train_test train_joint \
+# 	--base_model mbert \
+# 	--base_dir /scratch/ffaisal/base_models/mbert \
+# 	--data_dir ../data/uto_aztecan \
+# 	--out_dir ../adapters/mbert/uto_aztecan_fgl-j \
+# 	--lang_family uto_aztecan 
 
 # ./run_mlm_all.sh \
 # 	--train_test train_joint \
@@ -50,3 +50,25 @@ source ../../vnv/bin/activate
 # 	--data_dir ../data/uto_aztecan \
 # 	--out_dir ../adapters/xlmr/uto_aztecan \
 # 	--lang_family uto_aztecan 
+
+
+
+##random
+./run_mlm_all.sh \
+	--train_test train_joint \
+	--base_model mbert \
+	--base_dir /scratch/ffaisal/base_models/bert-base-multilingual-cased \
+	--data_dir ../data/random \
+	--out_dir ../adapters/mbert/random-j \
+	--lang_family random
+
+
+
+###demo
+# ./run_mlm_all.sh \
+# 	--train_test train_joint \
+# 	--base_model mbert \
+# 	--base_dir /scratch/ffaisal/base_models/bert-base-multilingual-cased \
+# 	--data_dir ../data/uralic_demo \
+# 	--out_dir ../adapters/mbert/random-j \
+# 	--lang_family uralic_demo

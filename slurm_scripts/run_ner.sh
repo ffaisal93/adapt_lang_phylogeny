@@ -1,3 +1,5 @@
+#!/bin/bash
+
 dataset="universal_dependencies"
 train_test=${train_test:-train_joint}
 base_model=${base_model:-mbert}
@@ -5,7 +7,7 @@ base_dir=${base_dir:-/scratch/ffaisal/base_models/pytorch_mbert}
 data_dir=${data_dir:-../data/uralic_demo}
 out_dir=${out_dir:-../adapters/uralic_demo}
 lang_config=${lang_config:-../meta_files/lang_meta.json}
-family_name=${family_name:-../meta_files/pred_meta.json}
+family_name=${family_name:-../meta_files/lang_meta.json}
 family_path=${family_path:-uralic}
 group_path=${group_path:-uralic}
 lang_path=${lang_path:-uralic}
@@ -15,6 +17,9 @@ task_path=${task_path:-en_ewt}
 task_path_j=${task_path:-en_ewt}
 cache_dir=${cache_dir:-/scratch/ffaisal/hug_cache}
 num_epoch=${num_epoch:-3}
+
+
+
 
 
 while [ $# -gt 0 ]; do
@@ -29,6 +34,8 @@ while [ $# -gt 0 ]; do
 done
 
 
+
+echo ${family_name}--------------------
 
 if [ "$base_model" = "mbert" ]; then
     seq_length=256
@@ -70,6 +77,27 @@ if [ "$train_test" = "train_joint" ]; then
         --output_dir ${out_dir} \
         --overwrite_output_dir \
         --train_adapter \
+        --save_steps 5000 \
+        --cache_dir ${cache_dir} \
+        --overwrite_output_dir
+
+elif [ "$train_test" = "train_mlm" ]; then
+    ###train:lang+region+family (joint)
+    echo ${lang_path}
+    echo ${out_dir}
+    python ../new_scripts/run_ner_all.py \
+        --model_name_or_path ${base_dir} \
+        --do_train \
+        --language ${lang_name} \
+        --task_name ${task_name} \
+        --per_device_train_batch_size ${train_batch} \
+        --learning_rate ${learning_rate} \
+        --num_train_epochs ${num_epoch} \
+        --max_seq_length ${seq_length} \
+        --output_dir ${out_dir} \
+        --overwrite_output_dir \
+        --store_best_model \
+        --evaluation_strategy epoch \
         --save_steps 5000 \
         --cache_dir ${cache_dir} \
         --overwrite_output_dir

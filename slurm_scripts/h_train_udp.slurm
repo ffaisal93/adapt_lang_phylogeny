@@ -2,8 +2,8 @@
 #SBATCH --partition=gpuq                    # the DGX only belongs in the 'gpu'  partition
 #SBATCH --qos=gpu                           # need to select 'gpu' QoS
 #SBATCH --job-name=python-gpu
-##SBATCH --output=../tr_output/pos.out
-##SBATCH --error=../tr_output/pos.err
+#SBATCH --output=../tr_output/udp.out
+#SBATCH --error=../tr_output/udp.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1                 # up to 128; 
 #SBATCH --gres=gpu:A100.40gb:3              # up to 8; only request what you need
@@ -27,6 +27,66 @@ echo ${task}
 
 source ../vnv/vnv-org/bin/activate
 
+
+
+if [ "$task" = "udp_mlm" ]; then
+	## uralic -------------------------------------------------
+	# output="et_edt"
+	# base_m='mbert'
+	# base_mh='bert-base-multilingual-cased'
+	# ./run_udp.sh \
+	# --train_test train_mlm \
+	# --base_model ${base_m} \
+	# --base_dir ../adapters/${base_m}/uralic-mlm/et_1m \
+	# --data_dir ../data/uralic_demo \
+	# --out_dir ../experiments/${base_m}/${task}/${output} \
+	# --lang_name et_1m \
+	# --task_name et_edt
+
+	output="en_ewt"
+	base_m='mbert'
+	base_mh='bert-base-multilingual-cased'
+	./run_udp.sh \
+	--train_test train_mlm \
+	--base_model ${base_m} \
+	--base_dir ../adapters/${base_m}/germanic-mlm/en_1m \
+	--data_dir ../data/uralic_demo \
+	--out_dir ../experiments/${base_m}/${task}/${output} \
+	--lang_name en_1m \
+	--task_name en_ewt
+
+	output="en_ewt"
+	base_m='mbert'
+	base_mh='bert-base-multilingual-cased'
+	./run_udp.sh \
+	--train_test train_mlm \
+	--base_model ${base_m} \
+	--base_dir ../adapters/${base_m}/germanic-mlm/en_1m \
+	--data_dir ../data/uralic_demo \
+	--out_dir ../experiments/${base_m}/${task}/${output} \
+	--lang_name en_1m \
+	--task_name en_ewt
+
+fi
+
+if [ "$task" = "udp_lll" ]; then
+	## uralic -------------------------------------------------
+	output="et_edt_lll-j"
+	base_m='mbert'
+	base_mh='bert-base-multilingual-cased'
+	./run_udp.sh \
+	--train_test train_joint \
+	--base_model ${base_m} \
+	--base_dir /scratch/ffaisal/base_models/${base_mh} \
+	--data_dir ../data/uralic_demo \
+	--out_dir ../experiments/${base_m}/${task}/${output} \
+	--family_path ../adapters/${base_m}/uralic_st/et_1m/mlm1 \
+	--group_path ../adapters/${base_m}/uralic_st/et_1m/mlm2 \
+	--lang_path ../adapters/${base_m}/uralic_st/et_1m/mlm3 \
+	--lang_name et_1m \
+	--task_name et_edt
+
+fi
 
 if [ "$task" = "udp" ]; then
 	## uralic -------------------------------------------------

@@ -1,0 +1,164 @@
+{
+    "germanic_up": {
+        "af": [
+            "af_afribooms"
+        ],
+        "da_1m": [
+            "da_ddt"
+        ],
+        "de_1m": [
+            "de_gsd"
+        ],
+        "en_1m": [
+            "en_ewt"
+        ],
+        "fao_300k": [
+            "fo_oft"
+        ],
+        "gotica": [
+            "got_proiel"
+        ],
+        "is_1m": [
+            "is_pud"
+        ],
+        "low_saxon": [
+            "nds_lsdc"
+        ],
+        "nl_1m": [
+            "nl_alpino"
+        ],
+        "no_1m": [
+            "no_bokmaal"
+        ],
+        "sv_1m": [
+            "sv_pud"
+        ],
+        "swiss-german_100k": [
+            "gsw_uzh"
+        ]
+    },
+    "random-j": {
+        "baq": [
+            "eu_bdt"
+        ],
+        "bul": [
+            "bg_btb"
+        ],
+        "fao": [
+            "fo_oft"
+        ],
+        "gle": [
+            "gl_ctg"
+        ],
+        "heb": [
+            "he_htb"
+        ],
+        "hin": [
+            "hi_hdtb"
+        ],
+        "kpv": [
+            "kpv_lattice"
+        ],
+        "tel": [
+            "te_mtg"
+        ],
+        "urb": [
+            "urb_tudet"
+        ]
+    },
+    "tupian": {
+        "gnw": [
+            "urb_tudet"
+        ],
+        "gn": [
+            "urb_tudet"
+        ],
+        "gub": [
+            "tpn_tudet",
+            "aqz_tudet",
+            "arr_tudet",
+            "gub_tudet"
+        ],
+        "gun": [
+            "gun_dooley"
+        ],
+        "myu": [
+            "myu_tudet"
+        ],
+        "urb": [
+            "urb_tudet"
+        ]
+    },
+    "uralic_lll": {
+        "mlm2": [
+            "fi_tdt"
+        ],
+        "mlm3": [
+            "sms_giellagas"
+        ]
+    },
+    "uralic_up": {
+        "et_1m": [
+            "et_edt"
+        ],
+        "fi_1m": [
+            "fi_tdt"
+        ],
+        "hu_1m": [
+            "hu_szeged"
+        ],
+        "koi_10k": [
+            "koi_uh"
+        ],
+        "kpv_13k": [
+            "kpv_lattice"
+        ],
+        "krl_5k": [
+            "krl_kkpp"
+        ],
+        "mdf_5k": [
+            "mdf_jr"
+        ],
+        "myv_29k": [
+            "myv_jr"
+        ],
+        "olo_19k": [
+            "olo_kkpp"
+        ],
+        "sme_10k": [
+            "sme_giella"
+        ],
+        "sms_3k": [
+            "sms_giellagas"
+        ]
+    },
+    "uto_aztecan": {
+        "crn": [
+            "aqz_tudet"
+        ],
+        "hch": [
+            "aqz_tudet"
+        ],
+        "mfy": [
+            "aqz_tudet"
+        ],
+        "nah": [
+            "aqz_tudet"
+        ],
+        "ntp": [
+            "aqz_tudet"
+        ],
+        "ood": [
+            "aqz_tudet"
+        ],
+        "stp": [
+            "aqz_tudet"
+        ],
+        "tar": [
+            "aqz_tudet"
+        ],
+        "yaq": [
+            "aqz_tudet"
+        ]
+    }
+}

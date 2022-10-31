@@ -178,7 +178,7 @@ def main():
     # The task name (with prefix)
     task_name = "ud_" + data_args.task_name
     language = adapter_args.language
-
+    logger.info("%s -----------------",model_args.model_name_or_path)
     model = AutoModelWithHeads.from_pretrained(
         model_args.model_name_or_path,
         config=config,
@@ -292,11 +292,19 @@ def main():
             )
 
     # Load and preprocess dataset
-    dataset = load_dataset("universal_dependencies", data_args.task_name,split=['train','validation','test'], cache_dir=model_args.cache_dir)
-    if len(dataset[0])>10000:
-        dataset = load_dataset("universal_dependencies", data_args.task_name,split=['train[:10000]','validation','test'], cache_dir=model_args.cache_dir)
-    dataset = datasets.DatasetDict({"train":dataset[0],"validation":dataset[1],"test":dataset[2]})
-    dataset = preprocess_dataset(dataset, tokenizer, labels, data_args, pad_token_id=-1)
+    model.freeze_model(False)
+    if 'mlm' not in data_args.task_name:
+        dataset = load_dataset("universal_dependencies", data_args.task_name,split=['train','validation','test'], cache_dir=model_args.cache_dir)
+        if len(dataset[0])>10000:
+            dataset = load_dataset("universal_dependencies", data_args.task_name,split=['train[:10000]','validation','test'], cache_dir=model_args.cache_dir)
+        dataset = datasets.DatasetDict({"train":dataset[0],"validation":dataset[1],"test":dataset[2]})
+        dataset = preprocess_dataset(dataset, tokenizer, labels, data_args, pad_token_id=-1)
+    else:
+        dataset = load_dataset("universal_dependencies", 'en_ewt',split=['train','validation','test'], cache_dir=model_args.cache_dir)
+        if len(dataset[0])>10000:
+            dataset = load_dataset("universal_dependencies", 'en_ewt',split=['train[:10000]','validation','test'], cache_dir=model_args.cache_dir)
+        dataset = datasets.DatasetDict({"train":dataset[0],"validation":dataset[1],"test":dataset[2]})
+        dataset = preprocess_dataset(dataset, tokenizer, labels, data_args, pad_token_id=-1)
 
     # Initialize our Trainer
     # HACK: Set this attribute to False to prevent label columns from being deleted
@@ -464,8 +472,40 @@ def main():
             metrics['uas'], 
             metrics['las']))
         model.set_active_adapters(None)
+
+    if training_args.do_predict_all and data_args.task_name=='mlm':
+        logging.info("*** Test ***")
+
+         # Opening JSON file
+        import json
+        with open(model_args.lang_config) as json_file:
+            ad_data = json.load(json_file)
+        adapter_info = ad_data[data_args.family_name]
+        print(adapter_info)
+        output_test_results_file = os.path.join(training_args.output_dir, "test_results.txt")
+        if trainer.is_world_process_zero():
+            writer = open(output_test_results_file, "w")
+        lang = model_args.model_name_or_path.split('/')[-1]
+        if lang=='bert-base-multilingual-cased':
+            lang_d=['en_ewt']
+        else:
+            lang_d = adapter_info[lang]
+
+        for ll in lang_d:
+            predict_dataset = get_dataset(ll)
+            logger.info('\n\n\n{}'.format('[mlm]'))
+            model.to(training_args.device)
+            predictions, _, metrics = trainer.predict(predict_dataset["test"])
+            logger.info("%s,%s,%s,%s,%s\n" % ('[mlm]',lang, 
+                ll, 
+                metrics['uas'], 
+                metrics['las']))
+            writer.write("%s,%s,%s,%s,%s\n" % ('[mlm]',lang,
+                ll, 
+                metrics['uas'], 
+                metrics['las']))
         
-    if training_args.do_predict_all:
+    elif training_args.do_predict_all:
 
         
 

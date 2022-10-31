@@ -41,32 +41,73 @@ nvidia-smi
 
 # export HF_DATASETS_CACHE='/scratch/ffaisal/hug_cache/datasets'
 
-source /projects/antonis/fahim/venvs/hopper/adapt/bin/activate
+# source /projects/antonis/fahim/venvs/hopper/adapt/bin/activate
+
 
 file=$1
 name=$2
 outname=$3
 
+
 echo $1
 echo $2
 echo $3
 
-python ../adapter-transformers/examples/language-modeling/run_mlm.py \
-    --model_name_or_path  /scratch/ffaisal/base_models/mbert \
+
+# source ../vnv/vnv-org/bin/activate
+# python ../adapter-transformers/examples/language-modeling/run_mlm.py \
+#     --model_name_or_path  /scratch/ffaisal/base_models/mbert \
+#     --train_file ${file} \
+#     --do_train \
+#     --learning_rate 1e-4 \
+#     --num_train_epochs 40 \
+#     --output_dir ../adapters/mbert/${outname}_l/${name} \
+#     --train_adapter \
+#     --cache_dir /scratch/ffaisal/hug_cache/datasets \
+#     --overwrite_output_dir \
+#     --max_seq_length 512 \
+#     --save_steps 5000 \
+#     --per_device_train_batch_size 12 \
+#     --adapter_reduction_factor 48 \
+#     --adapter_config "pfeiffer+inv"
+
+
+#######simple mlm baseline
+source ../vnv/vnv-trns/bin/activate
+
+
+python ../transformers-orig/examples/pytorch/language-modeling/run_mlm.py \
+    --model_name_or_path /scratch/ffaisal/base_models/bert-base-multilingual-cased \
     --train_file ${file} \
+    --per_device_train_batch_size 8 \
+    --per_device_eval_batch_size 8 \
     --do_train \
-    --learning_rate 1e-4 \
-    --num_train_epochs 40 \
-    --output_dir ../adapters/mbert/${outname}_l/${name} \
-    --train_adapter \
+    --output_dir ../adapters/mbert/${outname}/${name} \
     --cache_dir /scratch/ffaisal/hug_cache/datasets \
-    --overwrite_output_dir \
     --max_seq_length 512 \
-    --save_steps 5000 \
-    --per_device_train_batch_size 12 \
-    --adapter_config "pfeiffer+inv"
+    --save_steps 5000 
+
+# elif [ "$task" = "udp_eval" ] ; then
 
 
+
+
+#######stacked abletion study
+# python ../adapter-transformers/examples/language-modeling/run_mlm_stacked.py \
+#     --model_name_or_path  /scratch/ffaisal/base_models/bert-base-multilingual-cased \
+#     --train_file ${file} \
+#     --do_train \
+#     --learning_rate 1e-4 \
+#     --num_train_epochs 3 \
+#     --output_dir ../adapters/mbert/${outname}_st/${name} \
+#     --train_adapter \
+#     --cache_dir /scratch/ffaisal/hug_cache/datasets \
+#     --overwrite_output_dir \
+#     --max_seq_length 512 \
+#     --save_steps 5000 \
+#     --per_device_train_batch_size 12 \
+#     --adapter_reduction_factor 48 \
+#     --adapter_config "pfeiffer+inv"
 
 
 ######xlmr

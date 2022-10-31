@@ -45,8 +45,17 @@
         "sms_3k": "sami"},
 
     "uralic_demo":{
-        "et_1m": "finnic",
-        "fi_1m": "finnic",
-        "koi_10k": "permic"
+        "sme": "finnic"
+    },
+    "random":{
+        "baq": "r2",
+        "bul": "r1",
+        "fao": "r3",
+        "gle":"r1",
+        "heb":"r3",
+        "hin":"r3",
+        "kpv":"r2",
+        "tel":"r2",
+        "urb":"r1"
     }
 }

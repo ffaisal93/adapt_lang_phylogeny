@@ -53,7 +53,7 @@ if [ "$train_test" = "train_joint" ]; then
         --lang_family ${lang_family} \
         --do_train \
         --learning_rate ${learning_rate} \
-        --num_train_epochs 40 \
+        --num_train_epochs 3 \
         --output_dir ${out_dir} \
         --train_adapter \
         --cache_dir ${cache_dir} \

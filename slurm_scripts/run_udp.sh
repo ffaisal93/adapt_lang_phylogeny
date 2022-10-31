@@ -30,7 +30,8 @@ task_name=${task_name:-en_ewt}
 task_path=${task_path:-en_ewt}
 task_path_j=${task_path_j:-en_ewt}
 cache_dir=${cache_dir:-/scratch/ffaisal/hug_cache}
-num_epoch=${num_epoch:-6}
+num_epoch=${num_epoch:-1}
+
 
 
 while [ $# -gt 0 ]; do
@@ -93,6 +94,28 @@ if [ "$train_test" = "train_joint" ]; then
         --cache_dir ${cache_dir} \
         --overwrite_output_dir
 
+
+elif [ "$train_test" = "train_mlm" ]; then
+    ###train:lang+region+family (joint)
+    echo ${lang_path}
+    echo ${out_dir}
+    python ../examples/dependency-parsing/run_udp_america.py \
+        --model_name_or_path ${base_dir} \
+        --do_train \
+        --language ${lang_name} \
+        --task_name ${task_name} \
+        --per_device_train_batch_size ${train_batch} \
+        --learning_rate ${learning_rate} \
+        --num_train_epochs ${num_epoch} \
+        --max_seq_length ${seq_length} \
+        --output_dir ${out_dir} \
+        --overwrite_output_dir \
+        --store_best_model \
+        --evaluation_strategy epoch \
+        --metric_score uas \
+        --cache_dir ${cache_dir} \
+        --overwrite_output_dir
+
 elif [ "$train_test" = "train_lt" ]; then
     ###train:lang+region+family (joint)
     echo ${lang_path}
@@ -114,6 +137,47 @@ elif [ "$train_test" = "train_lt" ]; then
         --evaluation_strategy epoch \
         --metric_score uas \
         --train_adapter \
+        --cache_dir ${cache_dir} \
+        --overwrite_output_dir
+
+
+elif [ "$train_test" = "predict_all" ]; then
+    # export TASK_NAME="en_ewt"
+    python ../examples/dependency-parsing/run_udp_america.py \
+        --model_name_or_path ${base_dir} \
+        --task_name ${task_name} \
+        --task_path ${task_path} \
+        --task_path_j ${task_path_j} \
+        --lang_config ${lang_config} \
+        --do_predict_all \
+        --family_name ${family_name} \
+        --per_device_train_batch_size ${train_batch} \
+        --learning_rate ${learning_rate} \
+        --max_seq_length ${seq_length} \
+        --output_dir ${out_dir} \
+        --overwrite_output_dir \
+        --store_best_model \
+        --evaluation_strategy epoch \
+        --metric_score uas \
+        --cache_dir ${cache_dir} \
+        --overwrite_output_dir
+
+elif [ "$train_test" = "udp_eval" ]; then
+    # export TASK_NAME="en_ewt"
+    python ../examples/dependency-parsing/run_udp_america.py \
+        --model_name_or_path ${base_dir} \
+        --task_name ${task_name} \
+        --lang_config ${lang_config} \
+        --do_predict_all \
+        --family_name ${family_name} \
+        --per_device_train_batch_size ${train_batch} \
+        --learning_rate ${learning_rate} \
+        --max_seq_length ${seq_length} \
+        --output_dir ${out_dir} \
+        --overwrite_output_dir \
+        --store_best_model \
+        --evaluation_strategy epoch \
+        --metric_score uas \
         --cache_dir ${cache_dir} \
         --overwrite_output_dir
 

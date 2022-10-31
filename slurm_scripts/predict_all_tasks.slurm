@@ -28,6 +28,61 @@ echo ${task}
 source ../vnv/vnv-org/bin/activate
 
 
+if [ "$task" = "udp_random" ]; then
+	##---------------------------------------------------------
+	family_name='random-j'
+	base_m='mbert'
+	base_mh='bert-base-multilingual-cased'
+	./run_udp.sh \
+	--train_test predict_all \
+	--base_model ${base_m} \
+	--base_dir /scratch/ffaisal/base_models/${base_mh} \
+	--lang_config ../meta_files/pred_meta_${base_m}.json \
+	--family_name ${family_name} \
+	--task_name en_ewt \
+	--out_dir ../experiments/${base_m}/${task}/result/${family_name} \
+	--task_path ../experiments/${base_m}/udp/en_ewt_l/ud_en_ewt \
+	--task_path_j ../experiments/${base_m}/udp/en_ewt_fgl-j/ud_en_ewt
+
+elif [ "$task" = "pos_random" ]; then
+	## uralic -------------------------------------------------
+	##train_joint----xlmr
+	family_name='random-j'
+	base_m='mbert'
+	base_mh='bert-base-multilingual-cased'
+
+	./run_ner.sh \
+	--train_test predict_all \
+	--base_model ${base_m} \
+	--base_dir /scratch/ffaisal/base_models/${base_mh} \
+	--data_dir ../data/uralic_demo \
+	--family_name ${family_name} \
+	--lang_config ../meta_files/pred_meta_${base_m}.json \
+	--out_dir ../experiments/${base_m}/${task}/result/${family_name} \
+	--task_path ../experiments/${base_m}/pos/en_ewt_l/pos_en_ewt \
+	--task_path_j ../experiments/${base_m}/pos/en_ewt_fgl-j/pos_en_ewt \
+	--task_name en_ewt
+
+
+
+if [ "$task" = "udp_lll" ]; then
+	##---------------------------------------------------------
+	family_name='uralic_lll'
+	base_m='mbert'
+	base_mh='bert-base-multilingual-cased'
+	./run_udp.sh \
+	--train_test predict_all \
+	--base_model ${base_m} \
+	--base_dir /scratch/ffaisal/base_models/${base_mh} \
+	--lang_config ../meta_files/pred_meta_${base_m}.json \
+	--family_name ${family_name} \
+	--task_name et_edt \
+	--out_dir ../experiments/${base_m}/${task}/result/${family_name} \
+	--task_path ../experiments/${base_m}/${task}/et_edt_lll-j/ud_et_edt \
+	--task_path_j ../experiments/${base_m}/${task}/et_edt_lll-j/ud_et_edt
+
+
+
 if [ "$task" = "udp" ]; then
 	##---------------------------------------------------------
 	family_name='uralic_up'
